@@ -1,0 +1,21 @@
+[project]
+name = "cylera"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "python-dotenv>=1.2.1",
+    "requests>=2.32.5",
+    "typer>=0.21.1",
+]
+
+[project.scripts]
+cylera = "cylera:app"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["cylera", "cylera_client"]
