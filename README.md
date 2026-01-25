@@ -58,6 +58,20 @@ export CYLERA_USERNAME="your-email@example.com"
 export CYLERA_PASSWORD="your-password"
 ```
 
+### Doppler Secrets Management
+
+Instead of storing the secrets in a .env file, you may choose to use a secrets
+management solution such as [Doppler](https://www.doppler.com).
+
+To use [Doppler](https://www.doppler.com), simply add the following prefix to all commands.
+
+    doppler run -- 
+
+For example, to run "cylera devices" accessing secrets from Doppler, you would
+run the following:
+
+    doppler run -- cylera devices
+
 ## Usage
 
 ```bash
