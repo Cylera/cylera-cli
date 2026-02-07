@@ -112,20 +112,10 @@ DetectedAfterOption = Annotated[
 ]
 
 
-@app.command()
-def init() -> None:
-    """Initialize Cylera CLI configuration interactively."""
-    load_dotenv()
-
-    # Check if environment variables are already set
-    existing_vars = []
-    if os.environ.get("CYLERA_BASE_URL"):
-        existing_vars.append("CYLERA_BASE_URL")
-    if os.environ.get("CYLERA_USERNAME"):
-        existing_vars.append("CYLERA_USERNAME")
-    if os.environ.get("CYLERA_PASSWORD"):
-        existing_vars.append("CYLERA_PASSWORD")
-
+def _check_existing_config() -> None:
+    """Exit with error if Cylera environment variables are already set."""
+    var_names = ["CYLERA_BASE_URL", "CYLERA_USERNAME", "CYLERA_PASSWORD"]
+    existing_vars = [v for v in var_names if os.environ.get(v)]
     if existing_vars:
         print(
             "Error: The following environment variables are already set:\n"
@@ -136,11 +126,9 @@ def init() -> None:
         )
         raise typer.Exit(1)
 
-    print("Cylera CLI Configuration")
-    print("=" * 40)
-    print()
 
-    # Select base URL
+def _prompt_base_url() -> str:
+    """Prompt user to select a Cylera API endpoint and return the URL."""
     print("Select your Cylera API endpoint:")
     for i, url in enumerate(CYLERA_URLS, 1):
         print(f"  {i}. {url}")
@@ -151,50 +139,36 @@ def init() -> None:
             choice = input(f"Enter choice [1-{len(CYLERA_URLS)}]: ").strip()
             choice_num = int(choice)
             if 1 <= choice_num <= len(CYLERA_URLS):
-                base_url = CYLERA_URLS[choice_num - 1]
-                break
+                return CYLERA_URLS[choice_num - 1]
             print(f"Please enter a number between 1 and {len(CYLERA_URLS)}")
         except ValueError:
             print("Please enter a valid number")
 
-    print()
 
-    # Get username
-    username = input("Enter your Cylera username (email): ").strip()
-    if not username:
-        print("Error: Username cannot be empty", file=sys.stderr)
-        raise typer.Exit(1)
-
-    print()
-
-    # Get password (hidden input)
-    password = getpass.getpass("Enter your Cylera password: ")
-    if not password:
-        print("Error: Password cannot be empty", file=sys.stderr)
-        raise typer.Exit(1)
-
-    print()
+def _test_auth(username: str, password: str, base_url: str) -> None:
+    """Test authentication and print the response. Exits on failure."""
     print("Testing authentication...", end=" ", flush=True)
-
-    # Test authentication
     try:
         client = CyleraClient(
             username=username, password=password, base_url=base_url)
         auth_response = client.test_authenticate()
         client.close()
-        print("Success!")
-        print()
-        print("Authentication response:")
-        for key, value in auth_response.items():
-            if key != "token":
-                print(f"  {key}: {value}")
     except CyleraAuthError as e:
         print("Failed!")
         print(f"\nAuthentication error: {e}", file=sys.stderr)
         print("\nPlease check your credentials and try again.", file=sys.stderr)
         raise typer.Exit(1)
 
-    # Write to .env file in current directory
+    print("Success!")
+    print()
+    print("Authentication response:")
+    for key, value in auth_response.items():
+        if key != "token":
+            print(f"  {key}: {value}")
+
+
+def _save_env_config(base_url: str, username: str, password: str) -> Path:
+    """Append Cylera config to the .env file and return the path."""
     env_path = Path.cwd() / ".env"
 
     existing_content = ""
@@ -211,6 +185,38 @@ def init() -> None:
     )
 
     env_path.write_text(existing_content + cylera_config)
+    return env_path
+
+
+@app.command()
+def init() -> None:
+    """Initialize Cylera CLI configuration interactively."""
+    load_dotenv()
+    _check_existing_config()
+
+    print("Cylera CLI Configuration")
+    print("=" * 40)
+    print()
+
+    base_url = _prompt_base_url()
+    print()
+
+    username = input("Enter your Cylera username (email): ").strip()
+    if not username:
+        print("Error: Username cannot be empty", file=sys.stderr)
+        raise typer.Exit(1)
+
+    print()
+
+    password = getpass.getpass("Enter your Cylera password: ")
+    if not password:
+        print("Error: Password cannot be empty", file=sys.stderr)
+        raise typer.Exit(1)
+
+    print()
+    _test_auth(username, password, base_url)
+
+    env_path = _save_env_config(base_url, username, password)
 
     print()
     print(f"Configuration saved to {env_path}")

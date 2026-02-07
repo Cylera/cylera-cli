@@ -116,7 +116,7 @@ echo
 # Test riskmitigations (need a vulnerability name)
 echo ">>> Extracting a vulnerability name for mitigations test..."
 VULN_NAME=$($CY vulnerabilities --page-size 1 | grep -o '"vulnerability_name": "[^"]*"' | head -1 | cut -d'"' -f4)
-if [ -n "$VULN_NAME" ]; then
+if [[ -n "$VULN_NAME" ]]; then
   echo "Using vulnerability: $VULN_NAME"
   echo
   echo ">>> cy riskmitigations '$VULN_NAME'"
