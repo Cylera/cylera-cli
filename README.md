@@ -2,6 +2,9 @@
 
 A command-line interface for the [Cylera Partner API](https://partner.us1.cylera.com/apidocs/), providing read-only access to device inventory, threats, vulnerabilities, and network information.
 
+## Demo
+![Demo][demo]
+
 ## Requirements
 
 - [uv](https://docs.astral.sh/uv/)
@@ -187,3 +190,5 @@ The CLI supports these Cylera Partner API regions:
 ## License
 
 See LICENSE file for details.
+
+[demo]: demo.webp
