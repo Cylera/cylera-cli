@@ -1,0 +1,27 @@
+{
+  "devices": [
+    {
+      "aetitle": null,
+      "class": "Medical",
+      "fda_class": null,
+      "first_seen": 1635088163.0,
+      "hostname": "ECKRUOEYFY",
+      "id": "572f6f7e-4c6f-11ec-9d9d-e21f6cf20c17",
+      "ip_address": "10.30.25.93",
+      "location": "Location 3",
+      "mac_address": "00:03:7b:ce:1f:52",
+      "model": "Rauland-Borg Nurse Call",
+      "os": null,
+      "outdated": null,
+      "risk": 2,
+      "serial_number": null,
+      "type": "Nurse Call",
+      "uuid": "572f6f7e-4c6f-11ec-9d9d-e21f6cf20c17",
+      "vendor": "Rauland-Borg",
+      "version": null,
+      "vlan": 652
+    }
+  ],
+  "total": 10316,
+  "page": 0
+}

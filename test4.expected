@@ -1,0 +1,12 @@
+                                                                                
+ Usage: cylera.py deviceattributes [OPTIONS] MAC_ADDRESS                        
+                                                                                
+ Get attributes for a device by MAC address.                                    
+                                                                                
+╭─ Arguments ──────────────────────────────────────────────────────────────────╮
+│ *    mac_address      TEXT  MAC address of the device [required]             │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --help          Show this message and exit.                                  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+

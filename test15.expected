@@ -1,0 +1,19 @@
+{
+  "threats": [
+    {
+      "uuid": "9b2bd1ea-4c24-11ec-8a38-5eeeaabea551",
+      "ip_address": "10.30.150.250",
+      "mac_address": "bb:b0:71:cf:30:0a",
+      "hostname": "MOGJBMHEAG",
+      "device_identifier": "Philips Achieva dStream MRI",
+      "description": null,
+      "threat": "Anomalous network communication behavior",
+      "category": "GENERAL",
+      "first_seen": 1637579837,
+      "severity": "Medium",
+      "status": "Open"
+    }
+  ],
+  "total": 23,
+  "page": 0
+}

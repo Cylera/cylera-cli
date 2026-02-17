@@ -1,0 +1,21 @@
+{
+  "vulnerabilities": [
+    {
+      "uuid": "00714644-4c6f-11ec-9d9d-e21f6cf20c17",
+      "ip_address": "10.40.191.108",
+      "mac_address": "a3:0b:c3:1f:61:0b",
+      "model": null,
+      "type": null,
+      "vendor": null,
+      "class": "Medical",
+      "vulnerability_name": "Cleartext PII Sent Interally",
+      "vulnerability_category": "Security",
+      "first_seen": 1637680017,
+      "severity": "Medium",
+      "status": "Open",
+      "confidence": "High"
+    }
+  ],
+  "total": 4572,
+  "page": 0
+}
