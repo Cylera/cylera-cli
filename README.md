@@ -2,6 +2,12 @@
 
 A command-line interface for the [Cylera Partner API](https://partner.us1.cylera.com/apidocs/), providing read-only access to device inventory, threats, vulnerabilities, and network information.
 
+It can be used stand-alone or integrated into an AI workflow using the bundled Claude Code skill (see below).
+
+Alternatively, if you are looking to incorporate the power of Cylera into your AI workflows, you may also consider the [Cylera MCP Server](https://github.com/Cylera/cylera-mcp-server).
+
+This [Cylera AI Integration Options document](CLI_VS_MCP.md) may help you decide which one may make sense depending on your AI workflows.
+
 ## Demo
 ![Demo][demo]
 
