@@ -92,6 +92,7 @@ cylera <command> [options]
 | Command | Description |
 |---------|-------------|
 | `init` | Initialize Cylera CLI configuration interactively |
+| `organization` | Get the organization associated with the current credentials |
 | `device` | Get details for a specific device by MAC address |
 | `devices` | Get a list of devices with optional filters |
 | `deviceattributes` | Get attributes for a device by MAC address |
@@ -100,6 +101,13 @@ cylera <command> [options]
 | `riskmitigations` | Get mitigations for a specific vulnerability |
 | `vulnerabilities` | Get a list of vulnerabilities |
 | `threats` | Get a list of detected threats |
+
+#### Organization
+
+**Get organization info:**
+```bash
+cylera organization
+```
 
 #### Device Inventory
 
