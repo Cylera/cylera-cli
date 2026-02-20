@@ -1,21 +1,257 @@
 {
-  "vulnerabilities": [
+  "subnets": [
     {
-      "uuid": "00714644-4c6f-11ec-9d9d-e21f6cf20c17",
-      "ip_address": "10.40.191.108",
-      "mac_address": "a3:0b:c3:1f:61:0b",
-      "model": null,
-      "type": null,
-      "vendor": null,
-      "class": "Medical",
-      "vulnerability_name": "Cleartext PII Sent Interally",
-      "vulnerability_category": "Security",
-      "first_seen": 1637680017,
-      "severity": "Medium",
-      "status": "Open",
-      "confidence": "High"
+      "subnet": "10.20.0.0",
+      "vlan": 893,
+      "description": "Main Building - Floor 1",
+      "mask_len": 16,
+      "subnet_inet": "10.20.0.0/16",
+      "device_breakdown": [
+        {
+          "class": "Infrastructure"
+        },
+        {
+          "class": "Medical"
+        },
+        {
+          "class": "Misc IoT"
+        },
+        {
+          "class": "Non-IoT"
+        }
+      ]
+    },
+    {
+      "subnet": "10.50.0.0",
+      "vlan": 889,
+      "description": "Main Building - Floor 5",
+      "mask_len": 16,
+      "subnet_inet": "10.50.0.0/16",
+      "device_breakdown": [
+        {
+          "class": "Infrastructure"
+        },
+        {
+          "class": "Medical"
+        },
+        {
+          "class": "Misc IoT"
+        },
+        {
+          "class": "Non-IoT"
+        }
+      ]
+    },
+    {
+      "subnet": "10.20.0.0",
+      "vlan": 751,
+      "description": "Main Building - Floor 2",
+      "mask_len": 16,
+      "subnet_inet": "10.20.0.0/16",
+      "device_breakdown": [
+        {
+          "class": "Infrastructure"
+        },
+        {
+          "class": "Medical"
+        },
+        {
+          "class": "Misc IoT"
+        },
+        {
+          "class": "Non-IoT"
+        }
+      ]
+    },
+    {
+      "subnet": "10.50.0.0",
+      "vlan": 735,
+      "description": "Main Building - Floor 5",
+      "mask_len": 16,
+      "subnet_inet": "10.50.0.0/16",
+      "device_breakdown": [
+        {
+          "class": "Infrastructure"
+        },
+        {
+          "class": "Medical"
+        },
+        {
+          "class": "Misc IoT"
+        },
+        {
+          "class": "Non-IoT"
+        }
+      ]
+    },
+    {
+      "subnet": "10.30.0.0",
+      "vlan": 652,
+      "description": "Main Building - Floor 3",
+      "mask_len": 16,
+      "subnet_inet": "10.30.0.0/16",
+      "device_breakdown": [
+        {
+          "class": "Infrastructure"
+        },
+        {
+          "class": "Medical"
+        },
+        {
+          "class": "Misc IoT"
+        },
+        {
+          "class": "Non-IoT"
+        }
+      ]
+    },
+    {
+      "subnet": "10.40.0.0",
+      "vlan": 477,
+      "description": "Main Building - Floor 4",
+      "mask_len": 16,
+      "subnet_inet": "10.40.0.0/16",
+      "device_breakdown": [
+        {
+          "class": "Infrastructure"
+        },
+        {
+          "class": "Medical"
+        },
+        {
+          "class": "Misc IoT"
+        },
+        {
+          "class": "Non-IoT"
+        }
+      ]
+    },
+    {
+      "subnet": "10.30.0.0",
+      "vlan": 311,
+      "description": "Main Building - Floor 3",
+      "mask_len": 16,
+      "subnet_inet": "10.30.0.0/16",
+      "device_breakdown": [
+        {
+          "class": "Infrastructure"
+        },
+        {
+          "class": "Medical"
+        },
+        {
+          "class": "Misc IoT"
+        },
+        {
+          "class": "Non-IoT"
+        }
+      ]
+    },
+    {
+      "subnet": "10.40.0.0",
+      "vlan": 274,
+      "description": "Main Building - Floor 4",
+      "mask_len": 16,
+      "subnet_inet": "10.40.0.0/16",
+      "device_breakdown": [
+        {
+          "class": "Infrastructure"
+        },
+        {
+          "class": "Medical"
+        },
+        {
+          "class": "Misc IoT"
+        },
+        {
+          "class": "Non-IoT"
+        }
+      ]
+    },
+    {
+      "subnet": "10.20.0.0",
+      "vlan": 210,
+      "description": "Main Building - Floor 2",
+      "mask_len": 16,
+      "subnet_inet": "10.20.0.0/16",
+      "device_breakdown": [
+        {
+          "class": "Infrastructure"
+        },
+        {
+          "class": "Medical"
+        },
+        {
+          "class": "Misc IoT"
+        },
+        {
+          "class": "Non-IoT"
+        }
+      ]
+    },
+    {
+      "subnet": "10.50.0.0",
+      "vlan": 110,
+      "description": "Main Building - Floor 5",
+      "mask_len": 16,
+      "subnet_inet": "10.50.0.0/16",
+      "device_breakdown": [
+        {
+          "class": "Infrastructure"
+        },
+        {
+          "class": "Medical"
+        },
+        {
+          "class": "Misc IoT"
+        },
+        {
+          "class": "Non-IoT"
+        }
+      ]
+    },
+    {
+      "subnet": "10.30.0.0",
+      "vlan": 77,
+      "description": "Main Building - V1 X5 subnet",
+      "mask_len": 16,
+      "subnet_inet": "10.30.0.0/16",
+      "device_breakdown": [
+        {
+          "class": "Infrastructure"
+        },
+        {
+          "class": "Medical"
+        },
+        {
+          "class": "Misc IoT"
+        },
+        {
+          "class": "Non-IoT"
+        }
+      ]
+    },
+    {
+      "subnet": "10.40.0.0",
+      "vlan": 31,
+      "description": "Main Building - Floor 4",
+      "mask_len": 16,
+      "subnet_inet": "10.40.0.0/16",
+      "device_breakdown": [
+        {
+          "class": "Infrastructure"
+        },
+        {
+          "class": "Medical"
+        },
+        {
+          "class": "Misc IoT"
+        },
+        {
+          "class": "Non-IoT"
+        }
+      ]
     }
   ],
-  "total": 4572,
   "page": 0
 }

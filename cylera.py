@@ -226,6 +226,19 @@ def init() -> None:
 
 
 @app.command()
+def organization() -> None:
+    """Get the organization associated with the current credentials."""
+    require_config()
+    try:
+        with get_client() as client:
+            result = client.get_organization()
+        print_json(result)
+    except CyleraAPIError as e:
+        print(f"API error: {e}", file=sys.stderr)
+        raise typer.Exit(1)
+
+
+@app.command()
 def device(
     device_id: Annotated[str, typer.Argument(help="MAC address of the device")],
 ) -> None:

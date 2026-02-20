@@ -1,20 +1,5 @@
-                                                                                
- Usage: cylera.py [OPTIONS] COMMAND [ARGS]...                                   
-                                                                                
- Cylera CLI - Command line interface for the Cylera Partner API                 
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ init               Initialize Cylera CLI configuration interactively.        │
-│ device             Get details for a specific device by MAC address.         │
-│ devices            Get a list of devices with optional filters.              │
-│ deviceattributes   Get attributes for a device by MAC address.               │
-│ procedures         Get a list of medical procedures.                         │
-│ subnets            Get a list of network subnets.                            │
-│ riskmitigations    Get mitigations for a specific vulnerability.             │
-│ vulnerabilities    Get a list of vulnerabilities.                            │
-│ threats            Get a list of detected threats.                           │
-╰──────────────────────────────────────────────────────────────────────────────╯
-
+{
+  "organization_id": 17,
+  "name": "Cylera",
+  "internal_name": "cylera"
+}

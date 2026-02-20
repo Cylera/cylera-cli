@@ -1,28 +1,22 @@
                                                                                 
- Usage: cylera.py devices [OPTIONS]                                             
+ Usage: cylera.py [OPTIONS] COMMAND [ARGS]...                                   
                                                                                 
- Get a list of devices with optional filters.                                   
+ Cylera CLI - Command line interface for the Cylera Partner API                 
                                                                                 
 ╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --aetitle                  TEXT     Complete AE Title                        │
-│ --class                    TEXT     Device class (Medical, Infrastructure,   │
-│                                     etc.)                                    │
-│ --hostname                 TEXT     Complete hostname                        │
-│ --ip-address               TEXT     Partial or complete IP                   │
-│ --mac-address              TEXT     MAC address of device                    │
-│ --model                    TEXT     Device model                             │
-│ --os                       TEXT     Operating system                         │
-│ --page                     INTEGER  Page number for pagination               │
-│ --page-size                INTEGER  Results per page (max 100)               │
-│ --serial-number            TEXT     Complete serial number                   │
-│ --since-last-seen          INTEGER  [DEPRECATED] Seconds since last seen     │
-│ --type                     TEXT     Device type (EEG, X-Ray, etc.)           │
-│ --vendor                   TEXT     Device vendor                            │
-│ --first-seen-before        INTEGER  Epoch timestamp                          │
-│ --first-seen-after         INTEGER  Epoch timestamp                          │
-│ --last-seen-before         INTEGER  Epoch timestamp                          │
-│ --last-seen-after          INTEGER  Epoch timestamp                          │
-│ --attribute-label          TEXT     Attribute label filter                   │
-│ --help                              Show this message and exit.              │
+│ --help          Show this message and exit.                                  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────╮
+│ init               Initialize Cylera CLI configuration interactively.        │
+│ organization       Get the organization associated with the current          │
+│                    credentials.                                              │
+│ device             Get details for a specific device by MAC address.         │
+│ devices            Get a list of devices with optional filters.              │
+│ deviceattributes   Get attributes for a device by MAC address.               │
+│ procedures         Get a list of medical procedures.                         │
+│ subnets            Get a list of network subnets.                            │
+│ riskmitigations    Get mitigations for a specific vulnerability.             │
+│ vulnerabilities    Get a list of vulnerabilities.                            │
+│ threats            Get a list of detected threats.                           │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 

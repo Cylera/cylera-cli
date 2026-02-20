@@ -1,5 +1,18 @@
-Cylera CLI is not configured.
+                                                                                
+ Usage: cylera.py threats [OPTIONS]                                             
+                                                                                
+ Get a list of detected threats.                                                
+                                                                                
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --detected-after        INTEGER  Epoch timestamp filter                      │
+│ --mac-address           TEXT     MAC address of device                       │
+│ --name                  TEXT     Threat name (partial match)                 │
+│ --page                  INTEGER  Page number for pagination                  │
+│ --page-size             INTEGER  Results per page (max 100)                  │
+│ --severity              TEXT     Severity level: INFO, LOW, MEDIUM, HIGH,    │
+│                                  CRITICAL                                    │
+│ --status                TEXT     Status: OPEN, IN_PROGRESS, RESOLVED,        │
+│                                  SUPPRESSED                                  │
+│ --help                           Show this message and exit.                 │
+╰──────────────────────────────────────────────────────────────────────────────╯
 
-
-Run 'cylera init' to set up your credentials.
-exit:1
