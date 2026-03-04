@@ -1,0 +1,12 @@
+                                                                                
+ Usage: cylera.py riskmitigations [OPTIONS] VULNERABILITY                       
+                                                                                
+ Get mitigations for a specific vulnerability.                                  
+                                                                                
+╭─ Arguments ──────────────────────────────────────────────────────────────────╮
+│ *    vulnerability      TEXT  Name of the vulnerability [required]           │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --help          Show this message and exit.                                  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+

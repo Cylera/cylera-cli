@@ -1,23 +1,28 @@
 #!/usr/bin/env bash
-# Test script for the Cylera CLI
+#
+# Run all tests and quality checks for the Cylera CLI.
+#
 
-set -e # Exit on first error
+set -e
 
 USE_DOPPLER=false
+VERBOSE=false
 
 show_help() {
   cat <<EOF
 Usage: $(basename "$0") [OPTIONS]
 
-Run all tests for the Cylera CLI.
+Run all tests and quality checks for the Cylera CLI.
 
 Options:
     --use-doppler    Use Doppler secrets management
+    --verbose        Show pytest output (-s flag)
     --help           Show this help message and exit.
 
 Examples:
     $(basename "$0")               # Run tests using local .env file
     $(basename "$0") --use-doppler # Run tests using Doppler secrets
+    $(basename "$0") --verbose     # Run tests with output shown
 EOF
 }
 
@@ -26,6 +31,10 @@ while [[ $# -gt 0 ]]; do
   case $1 in
   --use-doppler)
     USE_DOPPLER=true
+    shift
+    ;;
+  --verbose)
+    VERBOSE=true
     shift
     ;;
   --help)
@@ -49,125 +58,71 @@ if [ "$USE_DOPPLER" = true ]; then
   fi
 fi
 
-# Pin terminal width so rich renders help text consistently regardless of
-# the actual terminal size the tests are run in.
-export COLUMNS=80
+check_environment_variables() {
+  REQUIRED_VARS=(CYLERA_BASE_URL CYLERA_USERNAME CYLERA_PASSWORD)
+  missing=()
+  for var in "${REQUIRED_VARS[@]}"; do
+    if [ -z "${!var}" ]; then
+      missing+=("$var")
+    fi
+  done
+  if [ ${#missing[@]} -gt 0 ]; then
+    echo "Error: The following required environment variables are not set:"
+    for var in "${missing[@]}"; do
+      echo "  - $var"
+    done
+    echo "Run 'cylera init' or set them in your .env file."
+    exit 1
+  fi
+}
 
-# Wrapper: run cylera with secrets injected via Doppler or the local .env file.
-run_cylera() {
+run_pytest() {
+  PYTEST_ARGS=(-v)
+  if [ "$VERBOSE" = true ]; then
+    PYTEST_ARGS+=(-s)
+  fi
   if [ "$USE_DOPPLER" = true ]; then
-    doppler run -- uv run python cylera.py "$@"
+    doppler run -- uv run pytest "${PYTEST_ARGS[@]}" || exit 1
   else
-    uv run python cylera.py "$@"
+    uv run pytest "${PYTEST_ARGS[@]}" || exit 1
   fi
 }
 
-# Helper function for tests that compare output against expected files
-run_test() {
-  local test_num=$1
-  local test_name=$2
-  shift 2
-  local cmd_args=("$@")
-
-  echo "Test $test_num: $test_name"
-  output=$(run_cylera "${cmd_args[@]}" 2>&1)
-  expected=$(cat "test${test_num}.expected")
-  if [ "$output" = "$expected" ]; then
-    echo "PASS: $test_name"
-  else
-    echo "FAIL: $test_name"
-    echo "Expected:"
-    echo "$expected"
-    echo "Got:"
-    echo "$output"
-    exit 1
+run_integration_tests() {
+  INTEGRATION_ARGS=()
+  if [ "$USE_DOPPLER" = true ]; then
+    INTEGRATION_ARGS+=(--use-doppler)
   fi
-  echo
+  bash "$(dirname "$0")/tests/integration/test.sh" "${INTEGRATION_ARGS[@]}"
 }
 
-# Like run_test but strips volatile JSON fields (last_seen) before comparing.
-# Used for live API tests where timestamps tick forward.
-JQ_STRIP='walk(if type == "object" then del(.last_seen, .total, .total_devices, .count) else . end)'
-run_api_test() {
-  local test_num=$1
-  local test_name=$2
-  shift 2
-  local cmd_args=("$@")
-
-  echo "Test $test_num: $test_name"
-  output=$(run_cylera "${cmd_args[@]}" 2>&1 | jq "$JQ_STRIP")
-  expected=$(cat "test${test_num}.expected")
-  if [ "$output" = "$expected" ]; then
-    echo "PASS: $test_name"
-  else
-    echo "FAIL: $test_name"
-    echo "Expected:"
-    echo "$expected"
-    echo "Got:"
-    echo "$output"
-    exit 1
-  fi
-  echo
+lint_shellscripts() {
+  shellcheck test.sh tests/integration/test.sh
 }
 
-echo "=== Cylera CLI Tests ==="
-echo
+check_app_security() {
+  uvx bandit -c bandit.yaml ./*.py
+}
 
-# =============================================================================
-# Test 1: Organization — live API query
-# =============================================================================
-
-run_api_test 1  "Organization"                                    organization
-
-# =============================================================================
-# Tests 2-10: Help output for each command
-# =============================================================================
-
-run_test 2  "Main help output"              --help
-run_test 3  "Devices command help"          devices --help
-run_test 4  "Device command help"           device --help
-run_test 5  "Deviceattributes command help" deviceattributes --help
-run_test 6  "Procedures command help"       procedures --help
-run_test 7  "Subnets command help"          subnets --help
-run_test 8  "Riskmitigations command help"  riskmitigations --help
-run_test 9  "Vulnerabilities command help"  vulnerabilities --help
-run_test 10 "Threats command help"          threats --help
-
-# =============================================================================
-# Test 11: Missing config — always runs without Doppler/env file so that
-# the credential-checking logic itself is what's being tested.
-# =============================================================================
-
-echo "Test 11: Missing config error"
-exit_code=0
-output=$(CYLERA_BASE_URL="" CYLERA_USERNAME="" CYLERA_PASSWORD="" uv run --no-env-file cylera devices 2>&1) || exit_code=$?
-# Strip the dynamic "Current directory:" line before comparing
-filtered=$(echo "$output" | grep -v "^Current directory:")
-expected=$(cat "test11.expected" | grep -v "^exit:")
-expected_exit=$(cat "test11.expected" | grep "^exit:" | cut -d: -f2)
-if [ "$filtered" = "$expected" ] && [ "$exit_code" = "$expected_exit" ]; then
-  echo "PASS: Missing config error"
-else
-  echo "FAIL: Missing config error"
-  echo "Expected exit code $expected_exit, got: $exit_code"
-  echo "Expected output (sans Current directory line):"
-  echo "$expected"
-  echo "Got (sans Current directory line):"
-  echo "$filtered"
-  exit 1
+if [ "$USE_DOPPLER" = false ]; then
+  # Load .env if present so credentials don't need to be exported separately
+  if [ -f "$(dirname "$0")/.env" ]; then
+    set -a
+    # shellcheck source=/dev/null
+    source "$(dirname "$0")/.env"
+    set +a
+  fi
+  check_environment_variables
 fi
-echo
 
-# =============================================================================
-# Tests 12-18: Live API queries against the demo environment
-# =============================================================================
+echo "******** Running pytest (unit tests) **********"
+run_pytest
+echo "******** Running shellcheck **********"
+lint_shellscripts
+echo "******** Running bandit (security) **********"
+check_app_security
+echo "******** Running integration tests **********"
+run_integration_tests
 
-run_api_test 12 "Devices default page"                            devices --page-size 1
-run_api_test 13 "Devices filtered by vendor (Philips)"           devices --page-size 1 --vendor Philips
-run_api_test 14 "Devices filtered by class and IP prefix"        devices --page-size 1 --class Medical --ip-address 10.30
-run_api_test 15 "Vulnerabilities default page"                   vulnerabilities --page-size 1
-run_api_test 16 "Threats default page"                           threats --page-size 1
-run_api_test 17 "Subnets list"                                   subnets
-run_api_test 18 "Vulnerabilities filtered by severity (MEDIUM)"  vulnerabilities --page-size 1 --severity MEDIUM
-
-echo "=== All tests passed! ==="
+echo ""
+echo "=== All checks passed! ==="

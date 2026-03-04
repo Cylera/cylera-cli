@@ -1,0 +1,12 @@
+                                                                                
+ Usage: cylera.py device [OPTIONS] DEVICE_ID                                    
+                                                                                
+ Get details for a specific device by MAC address.                              
+                                                                                
+╭─ Arguments ──────────────────────────────────────────────────────────────────╮
+│ *    device_id      TEXT  MAC address of the device [required]               │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --help          Show this message and exit.                                  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+

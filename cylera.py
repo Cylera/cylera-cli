@@ -239,6 +239,34 @@ def organization() -> None:
 
 
 @app.command()
+def organizations() -> None:
+    """List organizations available to switch into."""
+    require_config()
+    try:
+        with get_client() as client:
+            result = client.get_available_organizations()
+        print_json(result)
+    except CyleraAPIError as e:
+        print(f"API error: {e}", file=sys.stderr)
+        raise typer.Exit(1)
+
+
+@app.command()
+def switchorg(
+    organization_id: Annotated[str, typer.Argument(help="Organization ID to switch into")],
+) -> None:
+    """Switch to a different organization."""
+    require_config()
+    try:
+        with get_client() as client:
+            result = client.switch_organization(organization_id)
+        print_json(result)
+    except CyleraAPIError as e:
+        print(f"API error: {e}", file=sys.stderr)
+        raise typer.Exit(1)
+
+
+@app.command()
 def device(
     device_id: Annotated[str, typer.Argument(help="MAC address of the device")],
 ) -> None:
