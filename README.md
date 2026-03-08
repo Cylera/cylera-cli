@@ -1,6 +1,6 @@
 # Cylera CLI  
 
-A command-line interface for the [Cylera Partner API](https://partner.us1.cylera.com/apidocs/), providing read-only access to device inventory, threats, vulnerabilities, and network information.
+A command-line interface for the [Cylera Partner API](https://github.com/Cylera/cylera-partner-api), providing read-only access to device inventory, threats, vulnerabilities, and network information.
 
 It can be used stand-alone or integrated into an AI workflow using the bundled Claude Code skill (see below).
 
