@@ -7,6 +7,8 @@ REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 FIXTURES_DIR="$(cd "$(dirname "$0")/fixtures" && pwd)"
 
 USE_DOPPLER=false
+USE_OP=false
+MIN_OP_VERSION="2.33.0-beta.02"
 
 show_help() {
   cat <<EOF
@@ -15,12 +17,14 @@ Usage: $(basename "$0") [OPTIONS]
 Run all tests for the Cylera CLI.
 
 Options:
-    --use-doppler    Use Doppler secrets management
-    --help           Show this help message and exit.
+    --use-doppler              Use Doppler secrets management
+    --use-op                   Use 1Password CLI secrets management (requires OP_ENVIRONMENT_ID env var)
+    --help                     Show this help message and exit.
 
 Examples:
-    $(basename "$0")               # Run tests using local .env file
-    $(basename "$0") --use-doppler # Run tests using Doppler secrets
+    $(basename "$0")                                      # Run tests using local .env file
+    $(basename "$0") --use-doppler                        # Run tests using Doppler secrets
+    OP_ENVIRONMENT_ID=<env-id> $(basename "$0") --use-op  # Run tests using 1Password secrets
 EOF
 }
 
@@ -29,6 +33,10 @@ while [[ $# -gt 0 ]]; do
   case $1 in
   --use-doppler)
     USE_DOPPLER=true
+    shift
+    ;;
+  --use-op)
+    USE_OP=true
     shift
     ;;
   --help)
@@ -43,6 +51,12 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# Mutual exclusion check
+if [ "$USE_DOPPLER" = true ] && [ "$USE_OP" = true ]; then
+  echo "Error: --use-doppler and --use-op are mutually exclusive."
+  exit 1
+fi
+
 # Check for doppler CLI if --use-doppler was specified
 if [ "$USE_DOPPLER" = true ]; then
   if ! doppler --version >/dev/null 2>&1; then
@@ -52,14 +66,40 @@ if [ "$USE_DOPPLER" = true ]; then
   fi
 fi
 
+version_gte() {
+  # Returns 0 if $1 >= $2 using version sort
+  printf '%s\n%s\n' "$2" "$1" | sort -V -C
+}
+
+# Check for 1Password CLI if --use-op was specified
+if [ "$USE_OP" = true ]; then
+  if ! op --version >/dev/null 2>&1; then
+    echo "Error: 1Password CLI (op) is not installed or not in PATH."
+    echo "Please install 1Password CLI: https://developer.1password.com/docs/cli/get-started/"
+    exit 1
+  fi
+  installed_op_version=$(op --version)
+  if ! version_gte "$installed_op_version" "$MIN_OP_VERSION"; then
+    echo "Error: 1Password CLI version $installed_op_version is too old."
+    echo "Please upgrade to version $MIN_OP_VERSION or later."
+    exit 1
+  fi
+  if [ -z "$OP_ENVIRONMENT_ID" ]; then
+    echo "Error: OP_ENVIRONMENT_ID environment variable must be set when using --use-op."
+    exit 1
+  fi
+fi
+
 # Pin terminal width so rich renders help text consistently regardless of
 # the actual terminal size the tests are run in.
 export COLUMNS=80
 
-# Wrapper: run cylera with secrets injected via Doppler or the local .env file.
+# Wrapper: run cylera with secrets injected via Doppler, 1Password, or the local .env file.
 run_cylera() {
   if [ "$USE_DOPPLER" = true ]; then
     doppler run -- uv run --directory "$REPO_ROOT" python cylera.py "$@"
+  elif [ "$USE_OP" = true ]; then
+    op run --environment "$OP_ENVIRONMENT_ID" -- uv run --directory "$REPO_ROOT" python cylera.py "$@"
   else
     uv run --directory "$REPO_ROOT" python cylera.py "$@"
   fi

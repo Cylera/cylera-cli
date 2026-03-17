@@ -40,9 +40,11 @@ def env(monkeypatch):
 
 def test_organization(mock_client):
     payload = {"name": "Acme Hospital"}
-    mock_client.get_organization.return_value = payload
+    mock_org = MagicMock()
+    mock_org.get_organization.return_value = payload
 
-    with patch("cylera.get_client", return_value=mock_client):
+    with patch("cylera.get_client", return_value=mock_client), \
+         patch("cylera.Organization", return_value=mock_org):
         result = runner.invoke(app, ["organization"])
 
     assert result.exit_code == 0
@@ -51,9 +53,11 @@ def test_organization(mock_client):
 
 def test_organization_api_error(mock_client):
     from cylera_client import CyleraAPIError
-    mock_client.get_organization.side_effect = CyleraAPIError("boom")
+    mock_org = MagicMock()
+    mock_org.get_organization.side_effect = CyleraAPIError("boom")
 
-    with patch("cylera.get_client", return_value=mock_client):
+    with patch("cylera.get_client", return_value=mock_client), \
+         patch("cylera.Organization", return_value=mock_org):
         result = runner.invoke(app, ["organization"])
 
     assert result.exit_code == 1
@@ -65,9 +69,11 @@ def test_organization_api_error(mock_client):
 
 def test_organizations(mock_client):
     payload = [{"id": "org-1", "name": "Acme"}, {"id": "org-2", "name": "Beta"}]
-    mock_client.get_available_organizations.return_value = payload
+    mock_org = MagicMock()
+    mock_org.get_available_organizations.return_value = payload
 
-    with patch("cylera.get_client", return_value=mock_client):
+    with patch("cylera.get_client", return_value=mock_client), \
+         patch("cylera.Organization", return_value=mock_org):
         result = runner.invoke(app, ["organizations"])
 
     assert result.exit_code == 0
@@ -76,9 +82,11 @@ def test_organizations(mock_client):
 
 def test_organizations_api_error(mock_client):
     from cylera_client import CyleraAPIError
-    mock_client.get_available_organizations.side_effect = CyleraAPIError("unauthorized")
+    mock_org = MagicMock()
+    mock_org.get_available_organizations.side_effect = CyleraAPIError("unauthorized")
 
-    with patch("cylera.get_client", return_value=mock_client):
+    with patch("cylera.get_client", return_value=mock_client), \
+         patch("cylera.Organization", return_value=mock_org):
         result = runner.invoke(app, ["organizations"])
 
     assert result.exit_code == 1
@@ -90,14 +98,16 @@ def test_organizations_api_error(mock_client):
 
 def test_switchorg(mock_client):
     payload = {"switched": True}
-    mock_client.switch_organization.return_value = payload
+    mock_org = MagicMock()
+    mock_org.switch_organization.return_value = payload
 
-    with patch("cylera.get_client", return_value=mock_client):
+    with patch("cylera.get_client", return_value=mock_client), \
+         patch("cylera.Organization", return_value=mock_org):
         result = runner.invoke(app, ["switchorg", "org-1"])
 
     assert result.exit_code == 0
     assert json.loads(result.output) == payload
-    mock_client.switch_organization.assert_called_once_with("org-1")
+    mock_org.switch_organization.assert_called_once_with("org-1")
 
 
 def test_switchorg_requires_org_id():
@@ -107,9 +117,11 @@ def test_switchorg_requires_org_id():
 
 def test_switchorg_api_error(mock_client):
     from cylera_client import CyleraAPIError
-    mock_client.switch_organization.side_effect = CyleraAPIError("not allowed")
+    mock_org = MagicMock()
+    mock_org.switch_organization.side_effect = CyleraAPIError("not allowed")
 
-    with patch("cylera.get_client", return_value=mock_client):
+    with patch("cylera.get_client", return_value=mock_client), \
+         patch("cylera.Organization", return_value=mock_org):
         result = runner.invoke(app, ["switchorg", "org-bad"])
 
     assert result.exit_code == 1

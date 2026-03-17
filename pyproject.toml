@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
 dependencies = [
-    "cylera-client>=1.0.0",
+    "cylera-client>=1.1.0",
     "python-dotenv>=1.2.1",
     "requests>=2.32.5",
     "typer>=0.21.1",
@@ -23,6 +23,7 @@ py-modules = ["cylera", "cylera_client"]
 
 [dependency-groups]
 dev = [
+    "debugpy>=1.8.20",
     "pytest>=9.0.2",
     "pytest-mock>=3.15.1",
 ]

@@ -22,6 +22,7 @@ from cylera_client import (
     CyleraClient,
     Inventory,
     Network,
+    Organization,
     Risk,
     Threat,
     Utilization,
@@ -231,7 +232,7 @@ def organization() -> None:
     require_config()
     try:
         with get_client() as client:
-            result = client.get_organization()
+            result = Organization(client).get_organization()
         print_json(result)
     except CyleraAPIError as e:
         print(f"API error: {e}", file=sys.stderr)
@@ -244,7 +245,7 @@ def organizations() -> None:
     require_config()
     try:
         with get_client() as client:
-            result = client.get_available_organizations()
+            result = Organization(client).get_available_organizations()
         print_json(result)
     except CyleraAPIError as e:
         print(f"API error: {e}", file=sys.stderr)
@@ -259,7 +260,20 @@ def switchorg(
     require_config()
     try:
         with get_client() as client:
-            result = client.switch_organization(organization_id)
+            result = Organization(client).switch_organization(organization_id)
+        print_json(result)
+    except CyleraAPIError as e:
+        print(f"API error: {e}", file=sys.stderr)
+        raise typer.Exit(1)
+
+
+@app.command()
+def resetorg() -> None:
+    """Reset organization back to home."""
+    require_config()
+    try:
+        with get_client() as client:
+            result = Organization(client).reset_organization()
         print_json(result)
     except CyleraAPIError as e:
         print(f"API error: {e}", file=sys.stderr)

@@ -74,12 +74,22 @@ management solution such as [Doppler](https://www.doppler.com).
 
 To use [Doppler](https://www.doppler.com), simply add the following prefix to all commands.
 
-    doppler run -- 
+    doppler run --
 
 For example, to run "cylera devices" accessing secrets from Doppler, you would
 run the following:
 
     doppler run -- cylera devices
+
+### 1Password Secrets Management
+
+Alternatively, you can use [1Password CLI](https://developer.1password.com/docs/cli/get-started/)
+for secrets management. Set your environment ID and prefix commands with `op run`:
+
+```bash
+export OP_ENVIRONMENT_ID=<your-environment-id>
+op run --environment "$OP_ENVIRONMENT_ID" -- cylera devices
+```
 
 ## Usage
 
@@ -93,6 +103,9 @@ cylera <command> [options]
 |---------|-------------|
 | `init` | Initialize Cylera CLI configuration interactively |
 | `organization` | Get the organization associated with the current credentials |
+| `organizations` | List organizations available to switch into |
+| `switchorg` | Switch to a different organization |
+| `resetorg` | Reset organization back to home |
 | `device` | Get details for a specific device by MAC address |
 | `devices` | Get a list of devices with optional filters |
 | `deviceattributes` | Get attributes for a device by MAC address |
@@ -107,6 +120,21 @@ cylera <command> [options]
 **Get organization info:**
 ```bash
 cylera organization
+```
+
+**List available organizations:**
+```bash
+cylera organizations
+```
+
+**Switch to a different organization:**
+```bash
+cylera switchorg <organization-id>
+```
+
+**Reset back to home organization:**
+```bash
+cylera resetorg
 ```
 
 #### Device Inventory

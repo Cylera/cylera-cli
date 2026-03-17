@@ -43,9 +43,14 @@ Runs unit tests, shellcheck, and integration tests in sequence. Requires credent
 in `.env` or exported in the environment.
 
 ```bash
-./test.sh --use-doppler   # inject credentials via Doppler
-./test.sh --verbose       # show full pytest output (-s)
+./test.sh --use-doppler                        # inject credentials via Doppler
+OP_ENVIRONMENT_ID=<env-id> ./test.sh --use-op  # inject credentials via 1Password
+./test.sh --verbose                            # show full pytest output (-s)
 ```
+
+`--use-doppler` and `--use-op` are mutually exclusive. When using `--use-op`, the
+`OP_ENVIRONMENT_ID` environment variable must be set and 1Password CLI `op` must be
+installed (version >= 2.33.0-beta.02).
 
 ### Unit tests only (no credentials required)
 
