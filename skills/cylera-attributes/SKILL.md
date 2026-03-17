@@ -29,9 +29,13 @@ If `$ARGUMENTS` is provided, run both sub-steps simultaneously. Otherwise, run s
 
 **1a) Detect credentials — single Bash call:**
 ```
-which doppler 2>/dev/null && echo "doppler_found" || ([ -f .env ] && echo "dotenv_found" || echo "none")
+(which doppler 2>/dev/null && echo "doppler_found") || \
+(which op 2>/dev/null && [ -n "$OP_ENVIRONMENT_ID" ] && echo "op_found") || \
+([ -f .env ] && echo "dotenv_found") || \
+echo "none"
 ```
 - `doppler_found` → use `doppler run --` as the command prefix
+- `op_found` → use `op run --environment "$OP_ENVIRONMENT_ID" --` as the command prefix
 - `dotenv_found` → use no prefix
 - `none` → offer to run `cylera init`. If the user agrees, run it and use no prefix. If they decline, stop.
 
@@ -47,24 +51,25 @@ Extract the label and optional days filter from `$ARGUMENTS` using these rules:
 
 The API response is too large to process in context. Run a single self-contained Python script that handles all pagination, filtering, CSV writing, and path/date computation internally, returning only a small JSON summary.
 
-Substitute `<label>`, `<prefix>`, and `<days>` before running. Set `<days>` to an integer (e.g. `7`) if filtering, or `0` for no filter.
+Substitute `LABEL`, `PREFIX`, and `DAYS` before running. Set `DAYS` to an integer (e.g. `7`) if filtering, or `0` for no filter. Set `PREFIX` to the full prefix string (e.g. `doppler run --`) or empty string.
 
-```
-<prefix> python3 - << 'PYEOF'
-import subprocess, json, csv, sys, datetime
+```bash
+PREFIX="<prefix>" python3 - << 'PYEOF'
+import subprocess, json, csv, sys, datetime, os
 from pathlib import Path
 from collections import Counter
 
 label = "<label>"
 days = <days>  # 0 means no filter
+prefix = os.environ.get("PREFIX", "").split() if os.environ.get("PREFIX") else []
 
 slug = label.lower().replace(" ", "-")
 date = datetime.date.today().isoformat()
 cutoff_ts = (datetime.datetime.now() - datetime.timedelta(days=days)).timestamp() if days else None
 days_suffix = f"-last{days}days" if days else ""
 filepath = Path.cwd() / f"cylera-{slug}{days_suffix}-{date}.csv"
-columns = ["hostname", "ip_address", "mac_address", "type", "class", "os",
-           "vendor", "model", "location", "risk", "vlan", "last_seen",
+columns = ["hostname", "ip_address", "mac_address", "serial_number", "type", "class",
+           "os", "vendor", "model", "location", "risk", "vlan", "last_seen",
            "attribute_label", "attribute_value"]
 
 rows = []
@@ -72,7 +77,7 @@ page = 0
 
 while True:
     result = subprocess.run(
-        ["cylera", "devices", "--attribute-label", label,
+        prefix + ["cylera", "devices", "--attribute-label", label,
          "--page-size", "100", "--page", str(page)],
         capture_output=True, text=True
     )
@@ -87,11 +92,15 @@ while True:
             if last_seen_ts is None or last_seen_ts < cutoff_ts:
                 continue
         last_seen_str = datetime.datetime.fromtimestamp(last_seen_ts).strftime("%Y-%m-%d") if last_seen_ts else ""
-        for attr in device.get("matching_attributes", []):
+        attrs = device.get("matching_attributes", [])
+        if not attrs:
+            continue
+        for attr in attrs:
             rows.append({
                 "hostname": device.get("hostname", ""),
                 "ip_address": device.get("ip_address", ""),
                 "mac_address": device.get("mac_address", ""),
+                "serial_number": device.get("serial_number", ""),
                 "type": device.get("type", ""),
                 "class": device.get("class", ""),
                 "os": device.get("os", ""),
@@ -113,11 +122,13 @@ with open(filepath, "w", newline="") as f:
     writer.writeheader()
     writer.writerows(rows)
 
+unique_devices = len({r["mac_address"] for r in rows})
 risk_counter = Counter(str(r["risk"]) for r in rows)
 type_counter = Counter(r["type"] for r in rows)
 
 print(json.dumps({
     "total_rows": len(rows),
+    "unique_devices": unique_devices,
     "filepath": str(filepath),
     "pages_fetched": page + 1,
     "days_filter": days,
@@ -132,7 +143,7 @@ Parse the small JSON summary that the script prints.
 ### 3. Report
 
 Tell the user:
-- Total records written to the CSV (and the filter window if active, e.g. "seen in the last 7 days")
+- Total records and unique device count (and the filter window if active, e.g. "seen in the last 7 days")
 - The full path to the CSV file
 - Any notable observations (e.g., all devices are the same type, high-risk devices present)
 

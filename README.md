@@ -231,31 +231,16 @@ The CLI supports these Cylera Partner API regions:
 
 ## Claude Code Skills
 
-This repo includes a Claude Code skill that lets you query devices by attribute and export results to CSV directly from a conversation.
+This repo includes Claude Code skills for querying Cylera data and exporting results to CSV directly from a conversation — no scripting required.
 
-### Install
+| Skill | Description |
+|-------|-------------|
+| `/cylera-attributes` | Find devices by attribute label (e.g. TeamViewer, end of life) |
+| `/cylera-vulnerabilities` | Export vulnerabilities filtered by severity and/or status |
+| `/cylera-threats` | Export threats filtered by severity and/or status |
+| `/cylera-devices` | Export device inventory filtered by class, vendor, type, or OS |
 
-**macOS / Linux:**
-```bash
-cp -r skills/cylera-attributes ~/.claude/skills/
-```
-
-**Windows (PowerShell):**
-```powershell
-Copy-Item -Recurse skills\cylera-attributes $env:USERPROFILE\.claude\skills\
-```
-
-### Usage
-
-Once installed, use it in any Claude Code session:
-
-```
-/cylera-attributes TeamViewer
-/cylera-attributes "end of life"
-/cylera-attributes
-```
-
-The skill handles pagination automatically, writes results to a dated CSV in the current directory, and reports a summary of risk distribution and device types.
+See [CODING_AGENT_SKILLS.md](CODING_AGENT_SKILLS.md) for full installation instructions and usage examples.
 
 ## License
 

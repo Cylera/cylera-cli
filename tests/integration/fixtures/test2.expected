@@ -12,6 +12,7 @@
 │                   credentials.                                               │
 │ organizations     List organizations available to switch into.               │
 │ switchorg         Switch to a different organization.                        │
+│ resetorg          Reset organization back to home.                           │
 │ device            Get details for a specific device by MAC address.          │
 │ devices           Get a list of devices with optional filters.               │
 │ deviceattributes  Get attributes for a device by MAC address.                │

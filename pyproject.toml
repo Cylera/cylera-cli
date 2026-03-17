@@ -1,15 +1,38 @@
 [project]
 name = "cylera"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.1.0"
+description = "Command-line interface for the Cylera Partner API"
 readme = "README.md"
-requires-python = ">=3.13,<3.14"
+license = "MIT"
+authors = [
+    { name = "Cylera", email = "support@cylera.com" },
+]
+keywords = ["cylera", "medical devices", "iot security", "healthcare"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: System Administrators",
+    "Intended Audience :: Healthcare Industry",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+    "Topic :: System :: Systems Administration",
+]
+requires-python = ">=3.10"
 dependencies = [
     "cylera-client>=1.1.0",
     "python-dotenv>=1.2.1",
     "requests>=2.32.5",
     "typer>=0.21.1",
 ]
+
+[project.urls]
+Homepage = "https://github.com/Cylera/cylera-cli"
+Repository = "https://github.com/Cylera/cylera-cli"
+"Bug Tracker" = "https://github.com/Cylera/cylera-cli/issues"
 
 [project.scripts]
 cylera = "cylera:app"
@@ -19,7 +42,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-py-modules = ["cylera", "cylera_client"]
+py-modules = ["cylera"]
 
 [dependency-groups]
 dev = [
