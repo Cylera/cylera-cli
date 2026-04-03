@@ -131,8 +131,8 @@ wheels = [
 ]
 
 [[package]]
-name = "cylera"
-version = "1.1.0"
+name = "cylera-cli"
+version = "1.1.1"
 source = { editable = "." }
 dependencies = [
     { name = "cylera-client" },
