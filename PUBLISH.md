@@ -56,6 +56,12 @@ Verification can be performed as follows - set the version number to be what you
 uvx --from cylera-cli@1.1.0 cylera
 ```
 
+### 6. Commit and push to Github and create release
+
+We need to ensure to keep the releaes in PyPi we create in sync with the releases in Github.
+
+Commit and push the changes for the new release to Github, draft a new release that matches the release version in PyPI. Tag the version as the latest release.
+
 ## Checklist
 
 - [ ] Version bumped in `pyproject.toml`
@@ -64,3 +70,6 @@ uvx --from cylera-cli@1.1.0 cylera
 - [ ] `dist/` artifacts built with `uv build`
 - [ ] Published with `uv publish`
 - [ ] Release verified by installing from PyPI
+- [ ] Commit changes and push to Github for the release
+- [ ] Draft a new release in GitHub that matches the PyPI release - tag the version as the latest version
+
