@@ -18,29 +18,19 @@ This [Cylera AI Integration Options document](CLI_VS_MCP.md) may help you decide
 
 ## Installation
 
-Install using [uv](https://docs.astral.sh/uv/):
+Use the [uvx](https://docs.astral.sh/uv/guides/tools/) command to invoke a tool without installing it.
 
 ```bash
-uv tool install .
+uvx --from cylera-cli cylera --help
 ```
 
-Then run commands directly:
+This is quite long-winded and so if you want to shorten it, the following alias is recommended:
 
 ```bash
-cylera --help
+alias cylera='uvx --from cylera-cli cylera'
 ```
 
-To uninstall:
-
-```bash
-uv tool uninstall cylera
-```
-
-Alternatively, run without installing:
-
-```bash
-uvx cylera --help
-```
+The rest of the document assumes the alias is set.
 
 ## Configuration
 

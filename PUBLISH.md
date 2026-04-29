@@ -50,26 +50,10 @@ op run --environment "$OP_ENVIRONMENT_ID" -- uv publish
 
 ### 5. Verify the release
 
-Create a throwaway directory and change into it. Then to verify:
+Verification can be performed as follows - set the version number to be what you set earlier in the pyproject.toml file.
 
 ```bash
-uv init
-uv add cylera
-uv run cylera --help
-```
-
-## TestPyPI (optional)
-
-To do a dry run against TestPyPI first:
-
-```bash
-uv publish --publish-url https://test.pypi.org/legacy/ --token pypi-...
-```
-
-Then install from TestPyPI to verify:
-
-```bash
-uvx --index-url https://test.pypi.org/simple/ cylera --help
+uvx --from cylera-cli@1.1.0 cylera
 ```
 
 ## Checklist
