@@ -237,10 +237,16 @@ jobs:
           INPUT_VERSION: ${{ inputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "v$INPUT_VERSION" \
-            --title "v$INPUT_VERSION" \
-            --notes-file CHANGES.md \
-            dist/*
+          for i in $(seq 1 5); do
+            gh release create "v$INPUT_VERSION" \
+              --title "v$INPUT_VERSION" \
+              --notes-file CHANGES.md \
+              dist/* && exit 0
+            echo "Attempt $i failed, retrying in 15s..."
+            sleep 15
+          done
+          echo "Error: GitHub Release could not be created after 5 attempts."
+          exit 1
 
       - name: Dry run complete
         if: inputs.dry_run == true
