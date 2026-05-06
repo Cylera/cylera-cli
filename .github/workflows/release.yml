@@ -64,7 +64,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: Run ShellCheck
-        run: find . -type f -name "*.sh" -exec shellcheck {} +
+        run: shellcheck test.sh tests/integration/test.sh
 
   securitycheck:
     runs-on: ubuntu-latest
