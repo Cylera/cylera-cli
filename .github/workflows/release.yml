@@ -139,6 +139,8 @@ jobs:
         run: printf 'CYLERA_BASE_URL=%s\nCYLERA_USERNAME=%s\nCYLERA_PASSWORD=%s\n' "$CYLERA_BASE_URL" "$CYLERA_USERNAME" "$CYLERA_PASSWORD" > .env
       - name: Run integration tests
         run: bash tests/integration/test.sh
+        env:
+          NO_COLOR: "1"
 
   release:
     runs-on: ubuntu-latest
