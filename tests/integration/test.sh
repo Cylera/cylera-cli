@@ -186,8 +186,8 @@ exit_code=0
 output=$(CYLERA_BASE_URL="" CYLERA_USERNAME="" CYLERA_PASSWORD="" uv run --no-env-file cylera devices 2>&1) || exit_code=$?
 # Strip the dynamic "Current directory:" line before comparing
 filtered=$(echo "$output" | grep -v "^Current directory:")
-expected=$(cat "$FIXTURES_DIR/test11.expected" | grep -v "^exit:")
-expected_exit=$(cat "$FIXTURES_DIR/test11.expected" | grep "^exit:" | cut -d: -f2)
+expected=$(grep -v "^exit:" "$FIXTURES_DIR/test11.expected")
+expected_exit=$(grep "^exit:" "$FIXTURES_DIR/test11.expected" | cut -d: -f2)
 if [ "$filtered" = "$expected" ] && [ "$exit_code" = "$expected_exit" ]; then
   echo "PASS: Missing config error"
 else
