@@ -1,51 +1,20 @@
-# Cylera Claude Code Skills
+# Cylera Claude Code Skill
 
-This repo includes Claude Code skills that let you query Cylera data and export results to CSV directly from a conversation — no scripting required.
-
-## Available Skills
-
-| Skill | Description |
-|-------|-------------|
-| [`/cylera-attributes`](#cylera-attributes) | Find devices by attribute label (e.g. TeamViewer, end of life) |
-| [`/cylera-vulnerabilities`](#cylera-vulnerabilities) | Export vulnerabilities filtered by severity and/or status |
-| [`/cylera-threats`](#cylera-threats) | Export threats filtered by severity and/or status |
-| [`/cylera-devices`](#cylera-devices) | Export device inventory filtered by class, vendor, type, or OS |
-
-All skills handle pagination automatically, write results to a dated CSV in the current directory, and report a summary.
-
----
+This repo includes a Claude Code skill that lets you query Cylera data directly from a conversation — no scripting required.
 
 ## Installation
 
-### macOS / Linux
+Open this repo in Claude Code and say:
 
-```bash
-cp -r skills/cylera-attributes ~/.claude/skills/
-cp -r skills/cylera-vulnerabilities ~/.claude/skills/
-cp -r skills/cylera-threats ~/.claude/skills/
-cp -r skills/cylera-devices ~/.claude/skills/
-```
+> Install or update the skills for me
 
-Or install all at once:
+Claude will copy the skill to the right place. No manual steps needed.
 
-```bash
-cp -r skills/* ~/.claude/skills/
-```
-
-### Windows (PowerShell)
-
-```powershell
-Copy-Item -Recurse skills\cylera-attributes $env:USERPROFILE\.claude\skills\
-Copy-Item -Recurse skills\cylera-vulnerabilities $env:USERPROFILE\.claude\skills\
-Copy-Item -Recurse skills\cylera-threats $env:USERPROFILE\.claude\skills\
-Copy-Item -Recurse skills\cylera-devices $env:USERPROFILE\.claude\skills\
-```
+The only other setup required is Cylera credentials. If not already configured, the skill will detect this and offer to run `cylera init`.
 
 ---
 
 ## Credential Detection
-
-All skills automatically detect how you have Cylera credentials configured and apply the correct prefix:
 
 | Setup | Detection |
 |-------|-----------|
@@ -56,103 +25,22 @@ All skills automatically detect how you have Cylera credentials configured and a
 
 ---
 
-## Skills
+## `/cylera`
 
-### cylera-attributes
+General-purpose skill covering all Cylera API commands. Accepts natural language — no need to know CLI flags or API parameters.
 
-Find devices that have a specific attribute label and export them to CSV.
-
-**Usage:**
-```
-/cylera-attributes <attribute-label> [filter]
-```
+For large result sets it displays a summary and preview inline, then offers to export to CSV. For small result sets (≤ 20) it displays results as a table. For a single device it renders a formatted profile.
 
 **Examples:**
 ```
-/cylera-attributes TeamViewer
-/cylera-attributes "end of life"
-/cylera-attributes TeamViewer last 7 days
-/cylera-attributes "remote access" 30d
+/cylera all Philips medical devices seen in the last 30 days
+/cylera CRITICAL open threats from the last 7 days
+/cylera open vulnerabilities for MAC aa:bb:cc:dd:ee:ff
+/cylera investigate device aa:bb:cc:dd:ee:ff
+/cylera subnets on vlan 100
+/cylera mitigations for Log4Shell
+/cylera what org am I in
+/cylera switch to the Acme org
+/cylera list available orgs
+/cylera export all Windows devices to CSV
 ```
-
-**Output columns:** `hostname`, `ip_address`, `mac_address`, `serial_number`, `type`, `class`, `os`, `vendor`, `model`, `location`, `risk`, `vlan`, `last_seen`, `attribute_label`, `attribute_value`
-
-**Summary includes:** total rows, unique device count, risk distribution, top device types
-
----
-
-### cylera-vulnerabilities
-
-Export vulnerabilities to CSV with optional severity, status, and detection window filters.
-
-**Usage:**
-```
-/cylera-vulnerabilities [severity] [status] [filter]
-```
-
-**Severity values:** `INFO`, `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`
-**Status values:** `OPEN`, `IN_PROGRESS`, `RESOLVED`, `SUPPRESSED`
-
-**Examples:**
-```
-/cylera-vulnerabilities
-/cylera-vulnerabilities CRITICAL
-/cylera-vulnerabilities CRITICAL OPEN
-/cylera-vulnerabilities HIGH last 30 days
-/cylera-vulnerabilities OPEN 7d
-```
-
-**Output columns:** `mac_address`, `device_hostname`, `device_ip`, `name`, `severity`, `confidence`, `status`, `detected_at`
-
-**Summary includes:** total count, severity distribution, status distribution
-
----
-
-### cylera-threats
-
-Export detected threats to CSV with optional severity, status, and detection window filters.
-
-**Usage:**
-```
-/cylera-threats [severity] [status] [filter]
-```
-
-**Severity values:** `INFO`, `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`
-**Status values:** `OPEN`, `IN_PROGRESS`, `RESOLVED`, `SUPPRESSED`
-
-**Examples:**
-```
-/cylera-threats
-/cylera-threats HIGH
-/cylera-threats CRITICAL OPEN
-/cylera-threats HIGH last 30 days
-/cylera-threats OPEN 7d
-```
-
-**Output columns:** `mac_address`, `device_hostname`, `device_ip`, `name`, `severity`, `status`, `detected_at`
-
-**Summary includes:** total count, severity distribution, status distribution
-
----
-
-### cylera-devices
-
-Export device inventory to CSV with optional filters for class, type, vendor, or OS.
-
-**Usage:**
-```
-/cylera-devices [class <value>] [type <value>] [vendor <value>] [os <value>]
-```
-
-**Examples:**
-```
-/cylera-devices
-/cylera-devices Medical
-/cylera-devices vendor Philips
-/cylera-devices vendor GE class Medical
-/cylera-devices os Windows
-```
-
-**Output columns:** `hostname`, `ip_address`, `mac_address`, `serial_number`, `type`, `class`, `os`, `vendor`, `model`, `location`, `risk`, `vlan`, `last_seen`, `first_seen`
-
-**Summary includes:** total device count, class distribution, top vendors, top device types

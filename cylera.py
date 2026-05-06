@@ -12,6 +12,7 @@ import getpass
 import json
 import os
 import sys
+import time
 from pathlib import Path
 from typing import Annotated, Any, Optional
 
@@ -260,8 +261,28 @@ def switchorg(
     require_config()
     try:
         with get_client() as client:
-            result = Organization(client).switch_organization(organization_id)
-        print_json(result)
+            org_api = Organization(client)
+            result = org_api.switch_organization(organization_id)
+            print_json(result)
+
+            for attempt in range(2):
+                print("Waiting for switch to take effect...", file=sys.stderr)
+                time.sleep(5)
+                current = org_api.get_organization()
+                if str(current.get("id", "")) == str(organization_id):
+                    print(
+                        f"Confirmed: now in org {current.get('name', organization_id)!r}",
+                        file=sys.stderr,
+                    )
+                    return
+                if attempt == 0:
+                    print("Not yet active, retrying...", file=sys.stderr)
+
+            print(
+                f"Warning: switch may still be pending. "
+                f"Current org: {current.get('name', 'unknown')!r}",
+                file=sys.stderr,
+            )
     except CyleraAPIError as e:
         print(f"API error: {e}", file=sys.stderr)
         raise typer.Exit(1)

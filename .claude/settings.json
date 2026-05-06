@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uvx --from cylera-cli cylera*)",
+      "Bash(python3*)",
+      "Bash(which doppler*)",
+      "Bash(which op*)",
+      "Bash(doppler run -- uvx*)",
+      "Bash(op run --environment*)",
+      "Bash(cp -r skills/cylera ~/.claude/skills/)",
+      "Bash(open *.csv)"
+    ]
+  }
+}

@@ -219,16 +219,9 @@ The CLI supports these Cylera Partner API regions:
 - UK: `https://partner.uk1.cylera.com/`
 - Demo: `https://partner.demo.cylera.com/`
 
-## Claude Code Skills
+## Claude Code Skill
 
-This repo includes Claude Code skills for querying Cylera data and exporting results to CSV directly from a conversation — no scripting required.
-
-| Skill | Description |
-|-------|-------------|
-| `/cylera-attributes` | Find devices by attribute label (e.g. TeamViewer, end of life) |
-| `/cylera-vulnerabilities` | Export vulnerabilities filtered by severity and/or status |
-| `/cylera-threats` | Export threats filtered by severity and/or status |
-| `/cylera-devices` | Export device inventory filtered by class, vendor, type, or OS |
+This repo includes Claude Code skills that drive the CLI for you enabling you to query things in natural language.
 
 See [CODING_AGENT_SKILLS.md](CODING_AGENT_SKILLS.md) for full installation instructions and usage examples.
 
