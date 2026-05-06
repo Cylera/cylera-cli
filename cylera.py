@@ -515,6 +515,10 @@ def vulnerabilities(
     page_size: PageSizeOption = None,
     severity: SeverityOption = None,
     status: StatusOption = None,
+    exclude_suppressed_devices: Annotated[
+        Optional[bool],
+        typer.Option(help="Exclude vulnerability instances for suppressed devices"),
+    ] = None,
 ) -> None:
     """Get a list of vulnerabilities."""
     require_config()
@@ -529,6 +533,7 @@ def vulnerabilities(
                 page_size=page_size,
                 severity=severity,
                 status=status,
+                exclude_suppressed_devices=exclude_suppressed_devices,
             )
         print_json(result)
     except CyleraAPIError as e:

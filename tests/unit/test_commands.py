@@ -102,11 +102,13 @@ def test_switchorg(mock_client):
     mock_org.switch_organization.return_value = payload
 
     with patch("cylera.get_client", return_value=mock_client), \
-         patch("cylera.Organization", return_value=mock_org):
+         patch("cylera.Organization", return_value=mock_org), \
+         patch("cylera.time.sleep"):
         result = runner.invoke(app, ["switchorg", "org-1"])
 
     assert result.exit_code == 0
-    assert json.loads(result.output) == payload
+    parsed, _ = json.JSONDecoder().raw_decode(result.output)
+    assert parsed == payload
     mock_org.switch_organization.assert_called_once_with("org-1")
 
 
