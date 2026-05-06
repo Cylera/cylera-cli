@@ -131,12 +131,14 @@ jobs:
         run: uv python install
       - name: Install dependencies
         run: uv sync --locked --all-extras --dev # NOSONAR
+      - name: Create .env file
+        env:
+          CYLERA_BASE_URL: ${{ secrets.CYLERA_BASE_URL }}
+          CYLERA_USERNAME: ${{ secrets.CYLERA_USERNAME }}
+          CYLERA_PASSWORD: ${{ secrets.CYLERA_PASSWORD }}
+        run: printf 'CYLERA_BASE_URL=%s\nCYLERA_USERNAME=%s\nCYLERA_PASSWORD=%s\n' "$CYLERA_BASE_URL" "$CYLERA_USERNAME" "$CYLERA_PASSWORD" > .env
       - name: Run integration tests
         run: bash tests/integration/test.sh
-        env:
-          CYLERA_BASE_URL: ${{ secrets.TEST_CYLERA_BASE_URL }}
-          CYLERA_USERNAME: ${{ secrets.TEST_CYLERA_USERNAME }}
-          CYLERA_PASSWORD: ${{ secrets.TEST_CYLERA_PASSWORD }}
 
   release:
     runs-on: ubuntu-latest
