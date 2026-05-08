@@ -116,12 +116,12 @@ check_environment_variables() {
 
 run_pytest() {
   PYTEST_ARGS=(-v)
-  if [ "$VERBOSE" = true ]; then
+  if [[ "$VERBOSE" = true ]]; then
     PYTEST_ARGS+=(-s)
   fi
-  if [ "$USE_DOPPLER" = true ]; then
+  if [[ "$USE_DOPPLER" = true ]]; then
     doppler run -- uv run pytest "${PYTEST_ARGS[@]}" || exit 1
-  elif [ "$USE_OP" = true ]; then
+  elif [[ "$USE_OP" = true ]]; then
     op run --environment "$OP_ENVIRONMENT_ID" -- uv run pytest "${PYTEST_ARGS[@]}" || exit 1
   else
     uv run pytest "${PYTEST_ARGS[@]}" || exit 1
@@ -141,7 +141,7 @@ lint_shellscripts() {
 }
 
 check_app_security() {
-  uvx bandit -c bandit.yaml ./*.py
+  uvx --no-build bandit==1.9.4 -c bandit.yaml ./*.py
 }
 
 check_software_supply_chain_security() {
@@ -150,15 +150,15 @@ check_software_supply_chain_security() {
 
 run_integration_tests() {
   INTEGRATION_ARGS=()
-  if [ "$USE_DOPPLER" = true ]; then
+  if [[ "$USE_DOPPLER" = true ]]; then
     INTEGRATION_ARGS+=(--use-doppler)
-  elif [ "$USE_OP" = true ]; then
+  elif [[ "$USE_OP" = true ]]; then
     INTEGRATION_ARGS+=(--use-op)
   fi
   bash "$(dirname "$0")/tests/integration/test.sh" "${INTEGRATION_ARGS[@]}"
 }
 
-if [ "$USE_DOPPLER" = false ] && [ "$USE_OP" = false ]; then
+if [[ "$USE_DOPPLER" = false && "$USE_OP" = false ]]; then
   # Load .env if present so credentials don't need to be exported separately
   if [ -f "$(dirname "$0")/.env" ]; then
     set -a
