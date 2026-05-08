@@ -48,6 +48,7 @@ py-modules = ["cylera"]
 dev = [
     "debugpy>=1.8.20",
     "pytest>=9.0.2",
+    "pytest-cov>=6.0.0",
     "pytest-mock>=3.15.1",
 ]
 
