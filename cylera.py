@@ -265,6 +265,7 @@ def switchorg(
             result = org_api.switch_organization(organization_id)
             print_json(result)
 
+            current: dict[str, Any] = {}
             for attempt in range(2):
                 print("Waiting for switch to take effect...", file=sys.stderr)
                 time.sleep(5)

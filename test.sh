@@ -128,14 +128,12 @@ run_pytest() {
   fi
 }
 
-run_integration_tests() {
-  INTEGRATION_ARGS=()
-  if [ "$USE_DOPPLER" = true ]; then
-    INTEGRATION_ARGS+=(--use-doppler)
-  elif [ "$USE_OP" = true ]; then
-    INTEGRATION_ARGS+=(--use-op)
-  fi
-  bash "$(dirname "$0")/tests/integration/test.sh" "${INTEGRATION_ARGS[@]}"
+lint_python() {
+  uvx --no-build ruff==0.15.12 check . || exit 1
+}
+
+check_types() {
+  uvx --no-build pyright==1.1.409 . || exit 1
 }
 
 lint_shellscripts() {
@@ -144,6 +142,20 @@ lint_shellscripts() {
 
 check_app_security() {
   uvx bandit -c bandit.yaml ./*.py
+}
+
+check_software_supply_chain_security() {
+  uv export --no-hashes | uvx --no-build --python 3.13 pip-audit==2.10.0 -r /dev/stdin
+}
+
+run_integration_tests() {
+  INTEGRATION_ARGS=()
+  if [ "$USE_DOPPLER" = true ]; then
+    INTEGRATION_ARGS+=(--use-doppler)
+  elif [ "$USE_OP" = true ]; then
+    INTEGRATION_ARGS+=(--use-op)
+  fi
+  bash "$(dirname "$0")/tests/integration/test.sh" "${INTEGRATION_ARGS[@]}"
 }
 
 if [ "$USE_DOPPLER" = false ] && [ "$USE_OP" = false ]; then
@@ -159,10 +171,16 @@ fi
 
 echo "******** Running pytest (unit tests) **********"
 run_pytest
+echo "******** Running ruff check (linter)  **********"
+lint_python
+echo "******** Running pyright (checking types) **********"
+check_types
 echo "******** Running shellcheck **********"
 lint_shellscripts
 echo "******** Running bandit (security) **********"
 check_app_security
+echo "******** Running pip-audit (security scanning packages) *******"
+check_software_supply_chain_security
 echo "******** Running integration tests **********"
 run_integration_tests
 
