@@ -171,6 +171,267 @@ def test_devices_with_filters(mock_client):
 
 
 # ---------------------------------------------------------------------------
+# resetorg
+# ---------------------------------------------------------------------------
+
+def test_resetorg(mock_client):
+    payload = {"reset": True}
+    mock_org = MagicMock()
+    mock_org.reset_organization.return_value = payload
+
+    with patch("cylera.get_client", return_value=mock_client), \
+         patch("cylera.Organization", return_value=mock_org):
+        result = runner.invoke(app, ["resetorg"])
+
+    assert result.exit_code == 0
+    assert json.loads(result.output) == payload
+
+
+def test_resetorg_api_error(mock_client):
+    from cylera_client import CyleraAPIError
+    mock_org = MagicMock()
+    mock_org.reset_organization.side_effect = CyleraAPIError("forbidden")
+
+    with patch("cylera.get_client", return_value=mock_client), \
+         patch("cylera.Organization", return_value=mock_org):
+        result = runner.invoke(app, ["resetorg"])
+
+    assert result.exit_code == 1
+
+
+# ---------------------------------------------------------------------------
+# device (error path)
+# ---------------------------------------------------------------------------
+
+def test_device_api_error(mock_client):
+    from cylera_client import CyleraAPIError
+    mock_client._make_request.side_effect = CyleraAPIError("not found")
+
+    with patch("cylera.get_client", return_value=mock_client):
+        result = runner.invoke(app, ["device", "aa:bb:cc:dd:ee:ff"])
+
+    assert result.exit_code == 1
+
+
+# ---------------------------------------------------------------------------
+# devices (error path)
+# ---------------------------------------------------------------------------
+
+def test_devices_api_error(mock_client):
+    from cylera_client import CyleraAPIError
+    mock_client._make_request.side_effect = CyleraAPIError("server error")
+
+    with patch("cylera.get_client", return_value=mock_client):
+        result = runner.invoke(app, ["devices"])
+
+    assert result.exit_code == 1
+
+
+# ---------------------------------------------------------------------------
+# deviceattributes
+# ---------------------------------------------------------------------------
+
+def test_deviceattributes(mock_client):
+    payload = {"attributes": [{"label": "Department", "value": "Radiology"}]}
+    mock_client._make_request.return_value = payload
+
+    with patch("cylera.get_client", return_value=mock_client):
+        result = runner.invoke(app, ["deviceattributes", "aa:bb:cc:dd:ee:ff"])
+
+    assert result.exit_code == 0
+    assert json.loads(result.output) == payload
+
+
+def test_deviceattributes_requires_mac():
+    result = runner.invoke(app, ["deviceattributes"])
+    assert result.exit_code != 0
+
+
+def test_deviceattributes_api_error(mock_client):
+    from cylera_client import CyleraAPIError
+    mock_client._make_request.side_effect = CyleraAPIError("not found")
+
+    with patch("cylera.get_client", return_value=mock_client):
+        result = runner.invoke(app, ["deviceattributes", "aa:bb:cc:dd:ee:ff"])
+
+    assert result.exit_code == 1
+
+
+# ---------------------------------------------------------------------------
+# procedures
+# ---------------------------------------------------------------------------
+
+def test_procedures_no_filters(mock_client):
+    payload = {"procedures": [], "total": 0}
+    mock_client._make_request.return_value = payload
+
+    with patch("cylera.get_client", return_value=mock_client):
+        result = runner.invoke(app, ["procedures"])
+
+    assert result.exit_code == 0
+    assert json.loads(result.output) == payload
+
+
+def test_procedures_with_filters(mock_client):
+    payload = {"procedures": [{"name": "MRI Scan"}], "total": 1}
+    mock_client._make_request.return_value = payload
+
+    with patch("cylera.get_client", return_value=mock_client):
+        result = runner.invoke(app, ["procedures", "--procedure-name", "MRI"])
+
+    assert result.exit_code == 0
+    assert json.loads(result.output) == payload
+
+
+def test_procedures_api_error(mock_client):
+    from cylera_client import CyleraAPIError
+    mock_client._make_request.side_effect = CyleraAPIError("server error")
+
+    with patch("cylera.get_client", return_value=mock_client):
+        result = runner.invoke(app, ["procedures"])
+
+    assert result.exit_code == 1
+
+
+# ---------------------------------------------------------------------------
+# subnets
+# ---------------------------------------------------------------------------
+
+def test_subnets_no_filters(mock_client):
+    payload = {"subnets": [], "total": 0}
+    mock_client._make_request.return_value = payload
+
+    with patch("cylera.get_client", return_value=mock_client):
+        result = runner.invoke(app, ["subnets"])
+
+    assert result.exit_code == 0
+    assert json.loads(result.output) == payload
+
+
+def test_subnets_with_filters(mock_client):
+    payload = {"subnets": [{"cidr": "10.0.0.0/24"}], "total": 1}
+    mock_client._make_request.return_value = payload
+
+    with patch("cylera.get_client", return_value=mock_client):
+        result = runner.invoke(app, ["subnets", "--cidr-range", "10.0.0"])
+
+    assert result.exit_code == 0
+    assert json.loads(result.output) == payload
+
+
+def test_subnets_api_error(mock_client):
+    from cylera_client import CyleraAPIError
+    mock_client._make_request.side_effect = CyleraAPIError("server error")
+
+    with patch("cylera.get_client", return_value=mock_client):
+        result = runner.invoke(app, ["subnets"])
+
+    assert result.exit_code == 1
+
+
+# ---------------------------------------------------------------------------
+# riskmitigations
+# ---------------------------------------------------------------------------
+
+def test_riskmitigations(mock_client):
+    payload = {"mitigations": [{"title": "Apply patch"}]}
+    mock_client._make_request.return_value = payload
+
+    with patch("cylera.get_client", return_value=mock_client):
+        result = runner.invoke(app, ["riskmitigations", "CVE-2021-1234"])
+
+    assert result.exit_code == 0
+    assert json.loads(result.output) == payload
+
+
+def test_riskmitigations_requires_vulnerability():
+    result = runner.invoke(app, ["riskmitigations"])
+    assert result.exit_code != 0
+
+
+def test_riskmitigations_api_error(mock_client):
+    from cylera_client import CyleraAPIError
+    mock_client._make_request.side_effect = CyleraAPIError("not found")
+
+    with patch("cylera.get_client", return_value=mock_client):
+        result = runner.invoke(app, ["riskmitigations", "CVE-2021-1234"])
+
+    assert result.exit_code == 1
+
+
+# ---------------------------------------------------------------------------
+# vulnerabilities
+# ---------------------------------------------------------------------------
+
+def test_vulnerabilities_no_filters(mock_client):
+    payload = {"vulnerabilities": [], "total": 0}
+    mock_client._make_request.return_value = payload
+
+    with patch("cylera.get_client", return_value=mock_client):
+        result = runner.invoke(app, ["vulnerabilities"])
+
+    assert result.exit_code == 0
+    assert json.loads(result.output) == payload
+
+
+def test_vulnerabilities_with_filters(mock_client):
+    payload = {"vulnerabilities": [{"name": "Log4Shell"}], "total": 1}
+    mock_client._make_request.return_value = payload
+
+    with patch("cylera.get_client", return_value=mock_client):
+        result = runner.invoke(app, ["vulnerabilities", "--severity", "HIGH", "--status", "OPEN"])
+
+    assert result.exit_code == 0
+    assert json.loads(result.output) == payload
+
+
+def test_vulnerabilities_api_error(mock_client):
+    from cylera_client import CyleraAPIError
+    mock_client._make_request.side_effect = CyleraAPIError("server error")
+
+    with patch("cylera.get_client", return_value=mock_client):
+        result = runner.invoke(app, ["vulnerabilities"])
+
+    assert result.exit_code == 1
+
+
+# ---------------------------------------------------------------------------
+# threats
+# ---------------------------------------------------------------------------
+
+def test_threats_no_filters(mock_client):
+    payload = {"threats": [], "total": 0}
+    mock_client._make_request.return_value = payload
+
+    with patch("cylera.get_client", return_value=mock_client):
+        result = runner.invoke(app, ["threats"])
+
+    assert result.exit_code == 0
+    assert json.loads(result.output) == payload
+
+
+def test_threats_with_filters(mock_client):
+    payload = {"threats": [{"name": "Lateral Movement"}], "total": 1}
+    mock_client._make_request.return_value = payload
+
+    with patch("cylera.get_client", return_value=mock_client):
+        result = runner.invoke(app, ["threats", "--severity", "HIGH"])
+
+    assert result.exit_code == 0
+    assert json.loads(result.output) == payload
+
+
+def test_threats_api_error(mock_client):
+    from cylera_client import CyleraAPIError
+    mock_client._make_request.side_effect = CyleraAPIError("server error")
+
+    with patch("cylera.get_client", return_value=mock_client):
+        result = runner.invoke(app, ["threats"])
+
+    assert result.exit_code == 1
+
+
+# ---------------------------------------------------------------------------
 # Missing config
 # ---------------------------------------------------------------------------
 
