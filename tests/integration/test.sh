@@ -52,40 +52,40 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Mutual exclusion check
-if [ "$USE_DOPPLER" = true ] && [ "$USE_OP" = true ]; then
-  echo "Error: --use-doppler and --use-op are mutually exclusive."
+if [[ "$USE_DOPPLER" = true && "$USE_OP" = true ]]; then
+  echo "Error: --use-doppler and --use-op are mutually exclusive." >&2
   exit 1
 fi
 
 # Check for doppler CLI if --use-doppler was specified
-if [ "$USE_DOPPLER" = true ]; then
-  if ! doppler --version >/dev/null 2>&1; then
-    echo "Error: Doppler CLI is not installed or not in PATH."
-    echo "Please install Doppler CLI: https://docs.doppler.com/docs/install-cli"
-    exit 1
-  fi
+if [[ "$USE_DOPPLER" = true ]] && ! doppler --version >/dev/null 2>&1; then
+  echo "Error: Doppler CLI is not installed or not in PATH." >&2
+  echo "Please install Doppler CLI: https://docs.doppler.com/docs/install-cli"
+  exit 1
 fi
 
 version_gte() {
-  # Returns 0 if $1 >= $2 using version sort
-  printf '%s\n%s\n' "$2" "$1" | sort -V -C
+  local ver1="$1"
+  local ver2="$2"
+  # Returns 0 if ver1 >= ver2 using version sort
+  printf '%s\n%s\n' "$ver2" "$ver1" | sort -V -C
 }
 
 # Check for 1Password CLI if --use-op was specified
-if [ "$USE_OP" = true ]; then
+if [[ "$USE_OP" = true ]]; then
   if ! op --version >/dev/null 2>&1; then
-    echo "Error: 1Password CLI (op) is not installed or not in PATH."
+    echo "Error: 1Password CLI (op) is not installed or not in PATH." >&2
     echo "Please install 1Password CLI: https://developer.1password.com/docs/cli/get-started/"
     exit 1
   fi
   installed_op_version=$(op --version)
   if ! version_gte "$installed_op_version" "$MIN_OP_VERSION"; then
-    echo "Error: 1Password CLI version $installed_op_version is too old."
+    echo "Error: 1Password CLI version $installed_op_version is too old." >&2
     echo "Please upgrade to version $MIN_OP_VERSION or later."
     exit 1
   fi
-  if [ -z "$OP_ENVIRONMENT_ID" ]; then
-    echo "Error: OP_ENVIRONMENT_ID environment variable must be set when using --use-op."
+  if [[ -z "$OP_ENVIRONMENT_ID" ]]; then
+    echo "Error: OP_ENVIRONMENT_ID environment variable must be set when using --use-op." >&2
     exit 1
   fi
 fi
@@ -96,9 +96,9 @@ export COLUMNS=80
 
 # Wrapper: run cylera with secrets injected via Doppler, 1Password, or the local .env file.
 run_cylera() {
-  if [ "$USE_DOPPLER" = true ]; then
+  if [[ "$USE_DOPPLER" = true ]]; then
     doppler run -- uv run --directory "$REPO_ROOT" python cylera.py "$@"
-  elif [ "$USE_OP" = true ]; then
+  elif [[ "$USE_OP" = true ]]; then
     op run --environment "$OP_ENVIRONMENT_ID" -- uv run --directory "$REPO_ROOT" python cylera.py "$@"
   else
     uv run --directory "$REPO_ROOT" python cylera.py "$@"
@@ -115,7 +115,7 @@ run_test() {
   echo "Test $test_num: $test_name"
   output=$(run_cylera "${cmd_args[@]}" 2>&1)
   expected=$(cat "$FIXTURES_DIR/test${test_num}.expected")
-  if [ "$output" = "$expected" ]; then
+  if [[ "$output" = "$expected" ]]; then
     echo "PASS: $test_name"
   else
     echo "FAIL: $test_name"
@@ -140,7 +140,7 @@ run_api_test() {
   echo "Test $test_num: $test_name"
   output=$(run_cylera "${cmd_args[@]}" | jq "$JQ_STRIP")
   expected=$(cat "$FIXTURES_DIR/test${test_num}.expected")
-  if [ "$output" = "$expected" ]; then
+  if [[ "$output" = "$expected" ]]; then
     echo "PASS: $test_name"
   else
     echo "FAIL: $test_name"
@@ -188,7 +188,7 @@ output=$(CYLERA_BASE_URL="" CYLERA_USERNAME="" CYLERA_PASSWORD="" uv run --no-en
 filtered=$(echo "$output" | grep -v "^Current directory:")
 expected=$(grep -v "^exit:" "$FIXTURES_DIR/test11.expected")
 expected_exit=$(grep "^exit:" "$FIXTURES_DIR/test11.expected" | cut -d: -f2)
-if [ "$filtered" = "$expected" ] && [ "$exit_code" = "$expected_exit" ]; then
+if [[ "$filtered" = "$expected" && "$exit_code" = "$expected_exit" ]]; then
   echo "PASS: Missing config error"
 else
   echo "FAIL: Missing config error"
