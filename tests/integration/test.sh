@@ -181,7 +181,7 @@ run_test 10 "Threats command help"          threats --help
 # the credential-checking logic itself is what's being tested.
 # =============================================================================
 
-echo "Test 11: Missing config error"
+echo "Test 11: Missing config error" >&2
 exit_code=0
 output=$(CYLERA_BASE_URL="" CYLERA_USERNAME="" CYLERA_PASSWORD="" uv run --no-env-file cylera devices 2>&1) || exit_code=$?
 # Strip the dynamic "Current directory:" line before comparing
@@ -189,9 +189,9 @@ filtered=$(echo "$output" | grep -v "^Current directory:")
 expected=$(grep -v "^exit:" "$FIXTURES_DIR/test11.expected")
 expected_exit=$(grep "^exit:" "$FIXTURES_DIR/test11.expected" | cut -d: -f2)
 if [[ "$filtered" = "$expected" && "$exit_code" = "$expected_exit" ]]; then
-  echo "PASS: Missing config error"
+  echo "PASS: Missing config error" >&2
 else
-  echo "FAIL: Missing config error"
+  echo "FAIL: Missing config error" >&2
   echo "Expected exit code $expected_exit, got: $exit_code"
   echo "Expected output (sans Current directory line):"
   echo "$expected"
