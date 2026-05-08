@@ -58,40 +58,40 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Mutual exclusion check
-if [ "$USE_DOPPLER" = true ] && [ "$USE_OP" = true ]; then
-  echo "Error: --use-doppler and --use-op are mutually exclusive."
+if [[ "$USE_DOPPLER" = true && "$USE_OP" = true ]]; then
+  echo "Error: --use-doppler and --use-op are mutually exclusive." >&2
   exit 1
 fi
 
 # Check for doppler CLI if --use-doppler was specified
-if [ "$USE_DOPPLER" = true ]; then
-  if ! doppler --version >/dev/null 2>&1; then
-    echo "Error: Doppler CLI is not installed or not in PATH."
-    echo "Please install Doppler CLI: https://docs.doppler.com/docs/install-cli"
-    exit 1
-  fi
+if [[ "$USE_DOPPLER" = true ]] && ! doppler --version >/dev/null 2>&1; then
+  echo "Error: Doppler CLI is not installed or not in PATH." >&2
+  echo "Please install Doppler CLI: https://docs.doppler.com/docs/install-cli"
+  exit 1
 fi
 
 version_gte() {
-  # Returns 0 if $1 >= $2 using version sort
-  printf '%s\n%s\n' "$2" "$1" | sort -V -C
+  local ver1="$1"
+  local ver2="$2"
+  # Returns 0 if ver1 >= ver2 using version sort
+  printf '%s\n%s\n' "$ver2" "$ver1" | sort -V -C
 }
 
 # Check for 1Password CLI if --use-op was specified
-if [ "$USE_OP" = true ]; then
+if [[ "$USE_OP" = true ]]; then
   if ! op --version >/dev/null 2>&1; then
-    echo "Error: 1Password CLI (op) is not installed or not in PATH."
+    echo "Error: 1Password CLI (op) is not installed or not in PATH." >&2
     echo "Please install 1Password CLI: https://developer.1password.com/docs/cli/get-started/"
     exit 1
   fi
   installed_op_version=$(op --version)
   if ! version_gte "$installed_op_version" "$MIN_OP_VERSION"; then
-    echo "Error: 1Password CLI version $installed_op_version is too old."
+    echo "Error: 1Password CLI version $installed_op_version is too old." >&2
     echo "Please upgrade to version $MIN_OP_VERSION or later."
     exit 1
   fi
-  if [ -z "$OP_ENVIRONMENT_ID" ]; then
-    echo "Error: OP_ENVIRONMENT_ID environment variable must be set when using --use-op."
+  if [[ -z "$OP_ENVIRONMENT_ID" ]]; then
+    echo "Error: OP_ENVIRONMENT_ID environment variable must be set when using --use-op." >&2
     exit 1
   fi
 fi
@@ -100,12 +100,12 @@ check_environment_variables() {
   REQUIRED_VARS=(CYLERA_BASE_URL CYLERA_USERNAME CYLERA_PASSWORD)
   missing=()
   for var in "${REQUIRED_VARS[@]}"; do
-    if [ -z "${!var}" ]; then
+    if [[ -z "${!var}" ]]; then
       missing+=("$var")
     fi
   done
-  if [ ${#missing[@]} -gt 0 ]; then
-    echo "Error: The following required environment variables are not set:"
+  if [[ ${#missing[@]} -gt 0 ]]; then
+    echo "Error: The following required environment variables are not set:" >&2
     for var in "${missing[@]}"; do
       echo "  - $var"
     done
