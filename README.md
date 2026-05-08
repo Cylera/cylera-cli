@@ -1,3 +1,5 @@
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Cylera_cylera-cli&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Cylera_cylera-cli) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Cylera_cylera-cli&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Cylera_cylera-cli) [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Cylera_cylera-cli&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Cylera_cylera-cli) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Cylera_cylera-cli&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Cylera_cylera-cli) [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=Cylera_cylera-cli&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=Cylera_cylera-cli)
+
 # Cylera CLI  
 
 A command-line interface for the [Cylera Partner API](https://github.com/Cylera/cylera-partner-api), providing read-only access to device inventory, threats, vulnerabilities, and network information.
