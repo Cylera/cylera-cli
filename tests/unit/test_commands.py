@@ -309,7 +309,7 @@ def test_subnets_no_filters(mock_client):
 
 
 def test_subnets_with_filters(mock_client):
-    payload = {"subnets": [{"cidr": "10.0.0.0/24"}], "total": 1}  # NOSONAR: python:S1313
+    payload = {"subnets": [{"cidr": "10.0.0.0/24"}], "total": 1}  # NOSONAR(python:S1313)
     mock_client._make_request.return_value = payload
 
     with patch("cylera.get_client", return_value=mock_client):
