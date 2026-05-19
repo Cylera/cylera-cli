@@ -1,6 +1,6 @@
 [project]
 name = "cylera-cli"
-version = "1.2.1"
+version = "1.2.2"
 description = "Command-line interface for the Cylera Partner API"
 readme = "README.md"
 license = "MIT"
