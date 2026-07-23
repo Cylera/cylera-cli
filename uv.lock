@@ -250,7 +250,7 @@ toml = [
 
 [[package]]
 name = "cylera-cli"
-version = "1.2.3"
+version = "1.2.2"
 source = { editable = "." }
 dependencies = [
     { name = "cylera-client" },
