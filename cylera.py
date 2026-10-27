@@ -361,29 +361,32 @@ def switchorg(
     require_config()
     try:
         with get_client() as client:
-            org_api = Organization(client)
-            result = org_api.switch_organization(organization_id)
-            print_json(result)
+            result = Organization(client).switch_organization(organization_id)
+        print_json(result)
 
-            current: dict[str, Any] = {}
-            for attempt in range(2):
-                print("Waiting for switch to take effect...", file=sys.stderr)
-                time.sleep(5)
-                current = org_api.get_organization()
-                if str(current.get("id", "")) == str(organization_id):
-                    print(
-                        f"Confirmed: now in org {current.get('name', organization_id)!r}",
-                        file=sys.stderr,
-                    )
-                    return
-                if attempt == 0:
-                    print("Not yet active, retrying...", file=sys.stderr)
+        current: dict[str, Any] = {}
+        for attempt in range(2):
+            print("Waiting for switch to take effect...", file=sys.stderr)
+            time.sleep(5)
+            # A new client each time: a token from before the switch keeps
+            # acting on the old organization, and one from a WorkOS sign-in
+            # can't be renewed in place, so it has to be exchanged again.
+            with get_client() as client:
+                current = Organization(client).get_organization()
+            if str(current.get("id", "")) == str(organization_id):
+                print(
+                    f"Confirmed: now in org {current.get('name', organization_id)!r}",
+                    file=sys.stderr,
+                )
+                return
+            if attempt == 0:
+                print("Not yet active, retrying...", file=sys.stderr)
 
-            print(
-                f"Warning: switch may still be pending. "
-                f"Current org: {current.get('name', 'unknown')!r}",
-                file=sys.stderr,
-            )
+        print(
+            f"Warning: switch may still be pending. "
+            f"Current org: {current.get('name', 'unknown')!r}",
+            file=sys.stderr,
+        )
     except CyleraAPIError as e:
         print(f"API error: {e}", file=sys.stderr)
         raise typer.Exit(1)
