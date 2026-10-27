@@ -85,7 +85,8 @@ def test_login_refused_by_cylera_stores_nothing(device_flow):
         result = runner.invoke(app, ["auth", "login", "--no-browser"])
 
     assert result.exit_code == 1
-    assert "Sign in to the Cylera Portal" in result.output
+    assert "Cylera didn't accept the WorkOS account you signed in with (test@example.com)" in result.output
+    assert "private window" in result.output
     assert cylera_auth.stored_login(BASE_URL) is None
 
 
@@ -216,3 +217,14 @@ def test_logout_forgets_remembered_region(monkeypatch):
     assert "Signed out" in runner.invoke(app, ["auth", "logout"]).output
     assert cylera_auth.default_base_url() is None
     assert runner.invoke(app, ["organization"]).exit_code == 1
+
+
+def test_stored_sign_in_no_longer_accepted():
+    cylera_auth.save_login(BASE_URL, "client_123", AUTHENTICATION)
+    refreshed = _response(200, {"access_token": "workos-access-2", "refresh_token": "refresh-2"})
+    with patch.object(cylera_auth, "_post", return_value=refreshed), _exchange(401):
+        result = runner.invoke(app, ["organization"])
+
+    assert result.exit_code == 1
+    assert "Cylera no longer accepts the WorkOS account you signed in with (test@example.com)" in result.output
+    assert "private window" not in result.output

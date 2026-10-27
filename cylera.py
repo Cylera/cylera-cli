@@ -287,7 +287,8 @@ def auth_login(
             open_browser=not no_browser)
         # Exchange before storing anything, so an account Cylera won't
         # accept isn't left half signed in.
-        token = cylera_auth.exchange_token(base_url, authentication["access_token"])
+        token = cylera_auth.exchange_token(
+            base_url, authentication["access_token"], authentication["user"]["email"], at_login=True)
     except CyleraLoginError as e:
         print(f"Error: {e}", file=sys.stderr)
         raise typer.Exit(1)
