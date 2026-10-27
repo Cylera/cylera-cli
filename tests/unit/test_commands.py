@@ -112,6 +112,25 @@ def test_switchorg(mock_client):
     mock_org.switch_organization.assert_called_once_with("org-1")
 
 
+def test_switchorg_confirms_with_a_new_client(mock_client):
+    """The confirmation reads the organization through a new client, as a
+    token from before the switch still acts on the old organization."""
+    switching = MagicMock()
+    switching.switch_organization.return_value = {"switched": True}
+    fresh = MagicMock()
+    fresh.get_organization.return_value = {"id": "org-1", "name": "Customer"}
+
+    with patch("cylera.get_client", return_value=mock_client) as get_client, \
+         patch("cylera.Organization", side_effect=[switching, fresh]), \
+         patch("cylera.time.sleep"):
+        result = runner.invoke(app, ["switchorg", "org-1"])
+
+    assert result.exit_code == 0
+    assert "Confirmed: now in org 'Customer'" in result.output
+    assert get_client.call_count == 2
+    switching.get_organization.assert_not_called()
+
+
 def test_switchorg_requires_org_id():
     result = runner.invoke(app, ["switchorg"])
     assert result.exit_code != 0
