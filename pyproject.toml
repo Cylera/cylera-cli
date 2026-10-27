@@ -23,7 +23,7 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "cylera-client>=1.2.0",
+    "cylera-client>=1.4.0",
     "python-dotenv>=1.2.1",
     "requests>=2.32.5",
     "typer>=0.21.1",
@@ -42,7 +42,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-py-modules = ["cylera"]
+py-modules = ["cylera", "cylera_auth"]
 
 [dependency-groups]
 dev = [

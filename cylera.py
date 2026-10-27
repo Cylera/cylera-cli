@@ -31,6 +31,9 @@ from cylera_client import (
     CyleraAuthError,
 )
 
+import cylera_auth
+from cylera_auth import CyleraLoginError
+
 # Available Cylera API endpoints
 CYLERA_URLS = [
     "https://partner.us1.cylera.com/",
@@ -51,11 +54,29 @@ def print_json(data: Any) -> None:
     print(json.dumps(data, indent=2))
 
 
+def base_url_setting() -> Optional[str]:
+    """CYLERA_BASE_URL when set, else the API last signed in to."""
+    load_dotenv(Path.cwd() / ".env")
+    return os.environ.get("CYLERA_BASE_URL") or cylera_auth.default_base_url()
+
+
 def get_client() -> CyleraClient:
-    """Create and return a CyleraClient using environment variables."""
-    base_url = os.environ.get("CYLERA_BASE_URL")
+    """Create and return a CyleraClient using environment variables.
+
+    A username and password, when set, win; otherwise the client uses the
+    WorkOS sign-in stored by 'cylera auth login'.
+    """
+    base_url = base_url_setting()
     username = os.environ.get("CYLERA_USERNAME")
     password = os.environ.get("CYLERA_PASSWORD")
+
+    if base_url and not (username or password) and cylera_auth.stored_login(base_url):
+        try:
+            token = cylera_auth.cylera_token(base_url)
+        except CyleraLoginError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            raise typer.Exit(1)
+        return CyleraClient(token=token, base_url=base_url)
 
     if not base_url or not username or not password:
         print(
@@ -71,10 +92,11 @@ def get_client() -> CyleraClient:
 
 def check_environment() -> bool:
     """Check if required environment variables are set."""
-    load_dotenv(Path.cwd() / ".env")
-    base_url = os.environ.get("CYLERA_BASE_URL")
+    base_url = base_url_setting()
     username = os.environ.get("CYLERA_USERNAME")
     password = os.environ.get("CYLERA_PASSWORD")
+    if base_url and not (username or password):
+        return cylera_auth.stored_login(base_url) is not None
     return bool(base_url and username and password)
 
 
@@ -84,7 +106,8 @@ def require_config() -> None:
         print(
             f"Cylera CLI is not configured.\n\n"
             f"Current directory: {Path.cwd()}\n\n"
-            "Run 'cylera init' to set up your credentials.",
+            "Run 'cylera auth login' to sign in, or 'cylera init' to set up\n"
+            "a username and password.",
             file=sys.stderr,
         )
         raise typer.Exit(1)
@@ -225,6 +248,82 @@ def init() -> None:
     print()
     print("You can now use the Cylera CLI. Try:")
     print("  cylera devices --page-size 5")
+
+
+auth_app = typer.Typer(
+    help="Sign in to Cylera through WorkOS.", no_args_is_help=True)
+app.add_typer(auth_app, name="auth")
+
+
+def _require_base_url() -> str:
+    base_url = base_url_setting()
+    if not base_url:
+        print("Not signed in. Run 'cylera auth login'.", file=sys.stderr)
+        raise typer.Exit(1)
+    return base_url
+
+
+@auth_app.command("login")
+def auth_login(
+    base_url: Annotated[Optional[str], typer.Option(
+        "--base-url", help="Cylera API endpoint, instead of choosing one")] = None,
+    no_browser: Annotated[bool, typer.Option(
+        "--no-browser", help="Print the sign-in link without opening a browser")] = False,
+) -> None:
+    """Sign in through your browser."""
+    load_dotenv(Path.cwd() / ".env")
+    client_id = os.environ.get("CYLERA_WORKOS_CLIENT_ID")
+    if not client_id:
+        print("Error: Set CYLERA_WORKOS_CLIENT_ID.", file=sys.stderr)
+        raise typer.Exit(1)
+    base_url = base_url or os.environ.get("CYLERA_BASE_URL")
+    if not base_url:
+        base_url = _prompt_base_url()
+        print()
+    try:
+        authentication = cylera_auth.device_login(
+            client_id, show=lambda line: print(line, file=sys.stderr),
+            open_browser=not no_browser)
+        # Exchange before storing anything, so an account Cylera won't
+        # accept isn't left half signed in.
+        token = cylera_auth.exchange_token(base_url, authentication["access_token"])
+    except CyleraLoginError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        raise typer.Exit(1)
+    cylera_auth.save_login(base_url, client_id, authentication)
+
+    with CyleraClient(token=token, base_url=base_url) as client:
+        current = Organization(client).get_organization()
+    print(
+        f"Signed in as {authentication['user']['email']} "
+        f"({current.get('name', 'unknown organization')}) on {base_url}",
+        file=sys.stderr,
+    )
+
+
+@auth_app.command("status")
+def auth_status() -> None:
+    """Show how the CLI signs in to Cylera."""
+    base_url = _require_base_url()
+    username = os.environ.get("CYLERA_USERNAME")
+    if username:
+        print(f"Using the password for {username} on {base_url}")
+        return
+    login = cylera_auth.stored_login(base_url)
+    if login is None:
+        print(f"Not signed in on {base_url}. Run 'cylera auth login'.")
+        raise typer.Exit(1)
+    print(f"Signed in through WorkOS as {login['email']} on {base_url}")
+
+
+@auth_app.command("logout")
+def auth_logout() -> None:
+    """Forget the WorkOS sign-in for the current Cylera API endpoint."""
+    base_url = _require_base_url()
+    if cylera_auth.forget_login(base_url):
+        print(f"Signed out on {base_url}")
+    else:
+        print(f"Not signed in on {base_url}")
 
 
 @app.command()

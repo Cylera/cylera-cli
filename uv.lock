@@ -269,7 +269,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cylera-client", specifier = ">=1.2.0" },
+    { name = "cylera-client", specifier = ">=1.4.0" },
     { name = "python-dotenv", specifier = ">=1.2.1" },
     { name = "requests", specifier = ">=2.32.5" },
     { name = "typer", specifier = ">=0.21.1" },
@@ -285,14 +285,14 @@ dev = [
 
 [[package]]
 name = "cylera-client"
-version = "1.2.2"
+version = "1.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f3/64/1a6e4622196d662abc0b6165f4adb0aab09723ca79f360dfc4c7ff5e7eb4/cylera_client-1.2.2.tar.gz", hash = "sha256:dc44245a31e2c719ebc4cd0363e72f1fe4087a0381338662ba6b87711a417bf8", size = 8813, upload-time = "2026-07-23T13:19:29.372Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/45/0b/419e15f1fa455cb51f0d8dd1ff1da1f705c41a83826387f154953b416353/cylera_client-1.4.0.tar.gz", hash = "sha256:c348ce4bc629eb82452ae42c912814180a3d114adbc71473acc7f1f625a4707d", size = 10785, upload-time = "2026-10-27T18:27:52.831Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/47/28/bfffd8d9fa435003288821d3e5bdb2cd2dc288118a044809284b99238d93/cylera_client-1.2.2-py3-none-any.whl", hash = "sha256:5e84ef4d138f5826ce29b8a22585a134d7c76146c7feed2145b3bb32bd4601b0", size = 9017, upload-time = "2026-07-23T13:19:28.356Z" },
+    { url = "https://files.pythonhosted.org/packages/c3/59/27ce5c03b2724e5ad20fc73ab6b918242880b67cf1c3bca2a92f5b8e5d02/cylera_client-1.4.0-py3-none-any.whl", hash = "sha256:1a4d2c694c92741e280fde5120fc79ced84524c81f3f9865c8bee5c3ad25441c", size = 10899, upload-time = "2026-10-27T18:27:51.976Z" },
 ]
 
 [[package]]
