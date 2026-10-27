@@ -76,7 +76,8 @@ def test_login_stores_refresh_token_owner_only(device_flow):
     exchange.assert_called_once_with(
         "https://partner.demo.cylera.com/auth/token_exchange",
         json={"token": "workos-access"}, timeout=30)
-    assert cylera_auth.stored_login(BASE_URL)["refresh_token"] == "refresh-1"
+    login = cylera_auth.stored_login(BASE_URL)
+    assert login is not None and login["refresh_token"] == "refresh-1"
     mode = stat.S_IMODE(cylera_auth.CREDENTIALS_PATH.stat().st_mode)
     assert mode == 0o600
 
@@ -114,7 +115,8 @@ def test_commands_use_stored_sign_in_and_save_rotated_refresh_token():
     assert post.call_args.args[1]["refresh_token"] == "refresh-1"
     assert exchange.call_args.kwargs["json"] == {"token": "workos-access-2"}
     client.assert_called_once_with(token="cylera-token", base_url=BASE_URL)
-    assert cylera_auth.stored_login(BASE_URL)["refresh_token"] == "refresh-2"
+    login = cylera_auth.stored_login(BASE_URL)
+    assert login is not None and login["refresh_token"] == "refresh-2"
 
 
 def test_expired_sign_in_is_forgotten():
@@ -151,11 +153,28 @@ def test_status_and_logout():
     assert cylera_auth.stored_login(BASE_URL) is None
 
 
-def test_not_configured_suggests_login():
+def test_not_configured_suggests_init():
     result = runner.invoke(app, ["organization"])
 
     assert result.exit_code == 1
-    assert "cylera auth login" in result.output
+    assert "cylera init" in result.output
+    assert "cylera auth login" not in result.output
+
+
+def test_auth_is_hidden_from_help():
+    result = runner.invoke(app, ["--help"])
+
+    assert "organization" in result.output
+    assert "auth" not in result.output.split("Commands")[-1]
+
+
+def test_login_against_api_without_token_exchange(device_flow):
+    with _exchange(404):
+        result = runner.invoke(app, ["auth", "login", "--no-browser"])
+
+    assert result.exit_code == 1
+    assert "doesn't support signing in through WorkOS yet" in result.output
+    assert cylera_auth.stored_login(BASE_URL) is None
 
 
 def test_login_asks_for_region_and_remembers_it(device_flow, monkeypatch):

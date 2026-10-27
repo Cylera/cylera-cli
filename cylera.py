@@ -106,8 +106,7 @@ def require_config() -> None:
         print(
             f"Cylera CLI is not configured.\n\n"
             f"Current directory: {Path.cwd()}\n\n"
-            "Run 'cylera auth login' to sign in, or 'cylera init' to set up\n"
-            "a username and password.",
+            "Run 'cylera init' to set up your credentials.",
             file=sys.stderr,
         )
         raise typer.Exit(1)
@@ -250,9 +249,11 @@ def init() -> None:
     print("  cylera devices --page-size 5")
 
 
+# Hidden until the Partner API has POST /auth/token_exchange: for now
+# these work only against the identity management prototype.
 auth_app = typer.Typer(
     help="Sign in to Cylera through WorkOS.", no_args_is_help=True)
-app.add_typer(auth_app, name="auth")
+app.add_typer(auth_app, name="auth", hidden=True)
 
 
 def _require_base_url() -> str:

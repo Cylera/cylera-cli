@@ -141,6 +141,9 @@ def exchange_token(base_url: str, workos_access_token: str) -> str:
         json={"token": workos_access_token},
         timeout=30,
     )
+    if response.status_code == 404:
+        raise CyleraLoginError(
+            "This Cylera API doesn't support signing in through WorkOS yet.")
     if response.status_code == 401:
         raise CyleraLoginError(
             "Cylera refused your WorkOS sign-in. Sign in to the Cylera Portal "
