@@ -37,8 +37,6 @@ def env(monkeypatch, tmp_path):
     monkeypatch.setenv("CYLERA_WORKOS_CLIENT_ID", "client_123")
     monkeypatch.delenv("CYLERA_USERNAME", raising=False)
     monkeypatch.delenv("CYLERA_PASSWORD", raising=False)
-    monkeypatch.setattr(cylera_auth, "CREDENTIALS_PATH", tmp_path / "credentials.json")
-    monkeypatch.setattr(cylera_auth, "CONFIG_PATH", tmp_path / "config.json")
     monkeypatch.setattr(cylera_auth.time, "sleep", lambda _: None)
     monkeypatch.chdir(tmp_path)  # no stray .env
 

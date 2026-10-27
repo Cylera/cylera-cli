@@ -361,7 +361,16 @@ def switchorg(
     require_config()
     try:
         with get_client() as client:
-            result = Organization(client).switch_organization(organization_id)
+            org_api = Organization(client)
+            # GET /organization/ doesn't return the id switching takes (a
+            # mapping id, not the organization's), so the switch is
+            # confirmed by the target's name.
+            target_name = next(
+                (o.get("name") for o in org_api.get_available_organizations()
+                 if str(o.get("id")) == str(organization_id)),
+                None,
+            )
+            result = org_api.switch_organization(organization_id)
         print_json(result)
 
         current: dict[str, Any] = {}
@@ -373,9 +382,9 @@ def switchorg(
             # can't be renewed in place, so it has to be exchanged again.
             with get_client() as client:
                 current = Organization(client).get_organization()
-            if str(current.get("id", "")) == str(organization_id):
+            if target_name is not None and current.get("name") == target_name:
                 print(
-                    f"Confirmed: now in org {current.get('name', organization_id)!r}",
+                    f"Confirmed: now in org {target_name!r}",
                     file=sys.stderr,
                 )
                 return
