@@ -112,23 +112,53 @@ def test_switchorg(mock_client):
     mock_org.switch_organization.assert_called_once_with("org-1")
 
 
-def test_switchorg_confirms_with_a_new_client(mock_client):
-    """The confirmation reads the organization through a new client, as a
-    token from before the switch still acts on the old organization."""
+# The real responses: GET /organization/available lists mapping ids, and
+# GET /organization/ returns the organization's own id, not the mapping's.
+AVAILABLE = [{"id": "map-1", "name": "Customer"}, {"id": "map-2", "name": "Other"}]
+HOME = {"organization_id": 1, "name": "Home", "internal_name": "home"}
+CUSTOMER = {"organization_id": 7, "name": "Customer", "internal_name": "customer"}
+
+
+def _switchorg(mock_client, after_switch):
+    """Run switchorg map-1, with the checks after the switch reading
+    after_switch through new clients."""
     switching = MagicMock()
-    switching.switch_organization.return_value = {"switched": True}
-    fresh = MagicMock()
-    fresh.get_organization.return_value = {"id": "org-1", "name": "Customer"}
+    switching.get_available_organizations.return_value = AVAILABLE
+    switching.switch_organization.return_value = {"message": "queued"}
+    checks = [MagicMock(), MagicMock()]
+    for check, organization in zip(checks, after_switch):
+        check.get_organization.return_value = organization
 
     with patch("cylera.get_client", return_value=mock_client) as get_client, \
-         patch("cylera.Organization", side_effect=[switching, fresh]), \
+         patch("cylera.Organization", side_effect=[switching, *checks]), \
          patch("cylera.time.sleep"):
-        result = runner.invoke(app, ["switchorg", "org-1"])
+        result = runner.invoke(app, ["switchorg", "map-1"])
+    return result, switching, get_client
+
+
+def test_switchorg_confirms_by_name_with_a_new_client(mock_client):
+    """The check reads the organization through a new client, as a token
+    from before the switch still acts on the old organization."""
+    result, switching, get_client = _switchorg(mock_client, [CUSTOMER])
 
     assert result.exit_code == 0
     assert "Confirmed: now in org 'Customer'" in result.output
     assert get_client.call_count == 2
     switching.get_organization.assert_not_called()
+
+
+def test_switchorg_retries_while_the_switch_is_pending(mock_client):
+    result, _, _ = _switchorg(mock_client, [HOME, CUSTOMER])
+
+    assert "Not yet active, retrying..." in result.output
+    assert "Confirmed: now in org 'Customer'" in result.output
+
+
+def test_switchorg_warns_if_the_switch_never_shows(mock_client):
+    result, _, _ = _switchorg(mock_client, [HOME, HOME])
+
+    assert result.exit_code == 0
+    assert "Warning: switch may still be pending. Current org: 'Home'" in result.output
 
 
 def test_switchorg_requires_org_id():
