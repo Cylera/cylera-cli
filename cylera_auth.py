@@ -134,8 +134,13 @@ def device_login(
     raise CyleraLoginError("The sign-in code expired. Run 'cylera auth login' again.")
 
 
-def exchange_token(base_url: str, workos_access_token: str) -> str:
-    """Exchange a WorkOS access token for a Cylera token."""
+def exchange_token(base_url: str, workos_access_token: str, email: str, at_login: bool = False) -> str:
+    """Exchange a WorkOS access token for a Cylera token.
+
+    email is the WorkOS account it was issued for, named if Cylera
+    refuses it. The exchange doesn't say why it refuses (no Cylera
+    account, not migrated yet, disabled), so the message doesn't guess.
+    """
     response = requests.post(
         f"{_key(base_url)}/auth/token_exchange",
         json={"token": workos_access_token},
@@ -145,9 +150,18 @@ def exchange_token(base_url: str, workos_access_token: str) -> str:
         raise CyleraLoginError(
             "This Cylera API doesn't support signing in through WorkOS yet.")
     if response.status_code == 401:
+        if at_login:
+            raise CyleraLoginError(
+                f"Cylera didn't accept the WorkOS account you signed in with ({email}).\n"
+                "If that's the wrong account, sign out of WorkOS in your browser, or open\n"
+                "the link in a private window with --no-browser. If it's yours, sign in to\n"
+                "the Cylera Portal once to finish setting up your account, or ask your\n"
+                "Cylera administrator for access."
+            )
         raise CyleraLoginError(
-            "Cylera refused your WorkOS sign-in. Sign in to the Cylera Portal "
-            "once to move your account to WorkOS, then try again."
+            f"Cylera no longer accepts the WorkOS account you signed in with ({email}).\n"
+            "Ask your Cylera administrator for access, or run 'cylera auth login' to\n"
+            "sign in with another account."
         )
     response.raise_for_status()
     return response.json()["token"]
@@ -185,4 +199,4 @@ def cylera_token(base_url: str) -> str:
         raise CyleraLoginError(f"WorkOS refresh failed: {response.text}")
     authentication = response.json()
     _store_login(base_url, {**login, "refresh_token": authentication["refresh_token"]})
-    return exchange_token(base_url, authentication["access_token"])
+    return exchange_token(base_url, authentication["access_token"], login["email"])
